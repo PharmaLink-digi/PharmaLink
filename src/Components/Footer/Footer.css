@@ -1,0 +1,141 @@
+﻿.footer {
+  background: radial-gradient(circle at top, rgba(79, 209, 197, 0.08), transparent 20%), #0a1128;
+  color: #a0aec0;
+  padding: 60px 24px;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.8fr) repeat(2, minmax(140px, 1fr)) minmax(200px, 1fr);
+  gap: 32px 24px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .footer {
+    padding: 40px 18px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-brand {
+  min-width: 0;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.brand-title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.45rem;
+  letter-spacing: 0.4px;
+}
+
+.brand-copy {
+  margin: 0;
+  max-width: 360px;
+  color: #a0aec0;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.footer-column h6 {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 12px;
+}
+
+.footer-links li:last-child {
+  margin-bottom: 0;
+}
+
+.footer-links a {
+  color: #a0aec0;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus {
+  color: #4fd1c5;
+}
+
+.footer-language .language-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lang-button {
+  border: 1.5px solid rgba(160, 174, 192, 0.3);
+  background: transparent;
+  color: #a0aec0;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-button.active {
+  border-color: #4fd1c5;
+  background: rgba(79, 209, 197, 0.16);
+  color: #4fd1c5;
+}
+
+.lang-button:hover {
+  border-color: #4fd1c5;
+  color: #4fd1c5;
+  background: rgba(79, 209, 197, 0.08);
+}
+
+.footer-divider {
+  height: 1px;
+  margin: 38px 0 26px;
+  background: rgba(234, 239, 245, 0.12);
+  border: none;
+}
+
+.footer-bottom {
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: #a0aec0;
+  font-size: 0.92rem;
+  opacity: 0.82;
+}
