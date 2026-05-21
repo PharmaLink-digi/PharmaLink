@@ -3,10 +3,12 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "./assets/vite.svg";
 import heroImg from "./assets/hero.png";
 import "./App.css";
-import SignInForm from "./Components/SignInForm/SignInForm";
 import Home from "./Components/Home/Home";
-import { RouterProvider } from "react-router-dom";
+import "./Components/Home/Home.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import SignInForm from "./Components/SignInForm/SignInForm";
+import { RouterProvider } from "react-router-dom";
 
 
 
@@ -17,25 +19,12 @@ function App() {
 
   return (
     <>
-     <SignInForm/>
-      {/* <SignInForm/> */}
-      {/* <Home/> */}
-
-      {/* <Route path="/" element={<Home />} />
-      <Route path="/signup" element={<Signup />} /> 
-      <Route path="/search" element={<Search />} /> */}
-
-      {/* dkkjoiuhgihjldk */}
-
-      {/* <BrowserRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
         </Routes>
-      </BrowserRouter> */}
-
-{/* <Route path="/signup" element={<Signup />} />
-<Route path="/بحث" element={<Search />} /> */}
-
+      </BrowserRouter>
+     <SignInForm/>
     </>
   );
 }
