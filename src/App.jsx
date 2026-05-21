@@ -1,15 +1,8 @@
 import './App.css'
-import Footer from './Components/Footer/Footer'
-import './Components/Footer/Footer.css'
-import Search from './Components/Search/Search'
+import ForgotPassword from './Components/ForgotPassword/ForgotPassword'
 
 function App() {
-  return (
-    <>
-      <Search />
-      <Footer />
-    </>
-  )
+  return <ForgotPassword />
 }
 
 export default App;
