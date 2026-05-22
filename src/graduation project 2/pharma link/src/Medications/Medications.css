@@ -1,0 +1,94 @@
+body{
+  background-color: #f8fafc;
+}
+
+.medicine-card{
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 20px;
+  padding: 25px;
+  text-align: center;
+  transition: 0.3s;
+  height: 100%;
+}
+
+.medicine-card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.icon-box{
+  width: 55px;
+  height: 55px;
+  background: #dff5f2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-bottom: 20px;
+}
+
+.icon-box i{
+  font-size: 28px;
+  color: #2563ff;
+}
+
+.medicine-name{
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.medicine-type{
+  color: #64748b;
+  margin-bottom: 15px;
+}
+
+.available-badge{
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.medicine-category{
+  color: #2563ff;
+  font-weight: 600;
+  margin-top: 18px;
+}
+
+.rating{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.rating span{
+  color: #475569;
+  margin-right: 5px;
+}
+
+.rating i{
+  color: #fbbf24;
+}
+.trending-title{
+  font-size: 48px;
+  color: #0f172a;
+}
+
+.view-link{
+  text-decoration: none;
+  color: #2563ff;
+  font-size: 22px;
+  font-weight: 700;
+  transition: 0.3s;
+}
+
+.view-link:hover{
+  color: #1d4ed8;
+}

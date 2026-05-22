@@ -3,8 +3,38 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Check } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import axios from "axios";
+import TrendingMedicines from "./TrendingMedicines/TrendingMedicines";
+import {
+  signInWithPopup,
+} from "firebase/auth";
+
+import { auth, provider } from "./firebase";
 
 export default function App() {
+
+  async function signInWithGoogle() {
+
+  try {
+
+    const result = await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    console.log(user);
+
+    // send data to backend
+    await axios.post("http://localhost:5000/send-email", {
+      name: user.displayName,
+      email: user.email,
+    });
+
+    alert("Login Success & Welcome Email Sent");
+
+  } catch (error) {
+    console.log(error);
+  }
+}
 
   // ================= Yup Validation =================
   const validationSchema = Yup.object({
@@ -39,13 +69,35 @@ export default function App() {
 
     validationSchema,
 
-    onSubmit: (values) => {
-      console.log(values);
-      alert("Account Created Successfully");
+    onSubmit: async (values, { resetForm }) => {
+
+      try {
+
+        let response = await axios.post(
+          "http://localhost:3000/users",
+          values
+        );
+
+        console.log(response.data);
+
+        alert("Account Created Successfully");
+
+        resetForm();
+
+      } catch (error) {
+
+        console.log(error);
+
+        alert("Something went wrong");
+
+      }
+
     },
   });
 
   return (
+    <>
+    
     <div
       className="d-flex justify-content-center align-items-center"
       style={{
@@ -221,7 +273,7 @@ export default function App() {
                 <input
                   type="text"
                   name="phone"
-                  placeholder="+966 XX XXX XXXX"
+                  placeholder="01012345678"
                   className={`form-control ${
                     formik.touched.phone &&
                     formik.errors.phone
@@ -312,6 +364,14 @@ export default function App() {
               Create Account
             </button>
 
+            <button
+  type="button"
+  onClick={signInWithGoogle}
+  className="btn btn-light w-100 mt-3 border"
+>
+  Continue with Google
+</button>
+
             {/* Footer */}
             <p
               className="text-center mt-3 mb-0"
@@ -337,5 +397,13 @@ export default function App() {
         </div>
       </div>
     </div>
+    
+
+
+    <TrendingMedicines/>
+
+    
+    
+    </>
   );
 }
