@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 :root{
@@ -369,3 +370,77 @@ body {
   }
 }
 >>>>>>> origin/Home
+=======
+.testimonials-section {
+  background-color: #f8fafc;
+}
+
+.testimonials-section .section-title {
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.testimonials-section .section-subtitle {
+  color: #475569;
+  font-size: 1rem;
+  margin-top: 0.75rem;
+}
+
+.testimonial-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: #ffffff;
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.06);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 65px rgba(15, 23, 42, 0.09);
+}
+
+.testimonial-text {
+  line-height: 1.9;
+  font-size: 0.98rem;
+}
+
+.testimonial-card .stars i {
+  color: #f59e0b;
+  margin-right: 4px;
+}
+
+.testimonial-author {
+  margin-top: 1.25rem;
+}
+
+.cta-section {
+  background: linear-gradient(90deg, #0b4fff 0%, #0ebcb7 100%);
+}
+
+.cta-box {
+  background: rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.btn-cta {
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+  color: #0b4fff !important;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  font-weight: 700;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+  transition: box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+}
+
+.btn-cta:hover {
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f7ff 100%) !important;
+  border-color: rgba(14, 165, 233, 0.18);
+}
+
+.eyebrow-text {
+  color: #0086ff;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+>>>>>>> OS-02-Search

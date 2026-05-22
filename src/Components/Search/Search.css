@@ -1,0 +1,333 @@
+/* Core Styling setup supporting smooth modern Arabic UI */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
+
+.medicine-search-bg {
+  background-color: #f5f7fb;
+  min-height: 100vh;
+  font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+}
+
+/* Header Text Modifiers */
+.header-title {
+  font-size: 1.65rem;
+  color: #1a202c !important;
+}
+
+.subtitle-text {
+  font-size: 0.9rem;
+  color: #718096 !important;
+}
+
+.results-count-text {
+  font-size: 0.95rem;
+  color: #4a5568 !important;
+}
+
+/* Custom Input Field wrapper elements matching screen specifications */
+.search-input-wrapper {
+  width: 100%;
+}
+
+.search-field {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background-color: #ffffff;
+  font-size: 0.98rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: none !important;
+  padding-left: 3.5rem;
+}
+
+.search-field:focus {
+  border-color: #0086ff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 134, 255, 0.12);
+}
+
+.search-field-icon {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  font-size: 1.1rem;
+}
+
+/* Input Buttons Action Styles overrides */
+.btn-search {
+  background-color: #0086ff !important;
+  color: #ffffff !important;
+  border-radius: 14px !important;
+  border: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.btn-search:hover {
+  background-color: #0072d6 !important;
+}
+
+.btn-filter {
+  background-color: #ffffff !important;
+  color: #4a5568 !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  transition: all 0.2s ease;
+}
+
+.btn-filter:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Filter sidebar overlay */
+.filter-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 1050;
+}
+
+.filter-drawer-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.filter-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(340px, 100%);
+  height: 100%;
+  padding: 1.75rem;
+  background-color: #ffffff;
+  box-shadow: -24px 0 64px rgba(15, 23, 42, 0.15);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.filter-drawer-overlay.active .filter-drawer {
+  transform: translateX(0);
+}
+
+.custom-filter-option .form-check-input {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0.35rem;
+}
+
+.custom-filter-option .form-check-label {
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.32rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+@media (max-width: 768px) {
+  .filter-drawer {
+    width: 100%;
+  }
+}
+
+/* Drawer header tweaks */
+.filter-drawer .drawer-header {
+  padding-bottom: 0.5rem;
+}
+.filter-drawer .drawer-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.filter-drawer .filter-close {
+  position: absolute;
+  left: 1rem;
+  top: 0.25rem;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+}
+
+/* Make labels RTL friendly and move checkbox to the right */
+.custom-filter-option {
+  flex-direction: row-reverse;
+}
+
+/* Custom circular checkbox */
+.custom-filter-option .form-check-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  background: #fff;
+  display: inline-block;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.custom-filter-option .form-check-input:checked {
+  background: #007bff;
+  border-color: #007bff;
+}
+
+.custom-filter-option .form-check-input:after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 7px;
+  width: 8px;
+  height: 14px;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.12s ease;
+}
+
+.custom-filter-option .form-check-input:checked:after {
+  border-color: #fff;
+  transform: rotate(45deg) scale(1);
+}
+
+.filter-drawer .custom-filter-option .form-check-label {
+  margin-inline-start: 0.75rem;
+  font-size: 1rem;
+}
+
+.filter-drawer .btn-search {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.filter-drawer .btn-outline-secondary {
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+/* Card Structures and layouts */
+.medicine-item-card {
+  border-radius: 22px !important;
+  background-color: #ffffff;
+  box-shadow: 0 4px 18px rgba(226, 232, 240, 0.4);
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.medicine-item-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(160, 174, 192, 0.25);
+}
+
+/* Pill Badges status indicators */
+.status-pill {
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0;
+}
+
+.status-green {
+  background-color: #e6f7ed !important;
+  color: #1f9254 !important;
+}
+
+.status-red {
+  background-color: #ffebe9 !important;
+  color: #f43f5e !important;
+}
+
+/* Circular background item wrapper wrapper icon */
+.icon-pill-circle {
+  width: 42px;
+  height: 42px;
+  background-color: #edf5ff;
+  border-radius: 50%;
+  border: 1px solid #d0e6ff;
+}
+
+.icon-pill-circle i {
+  color: #0086ff !important;
+}
+
+/* Info typography styling matching screenshots */
+.medicine-main-title {
+  font-size: 1.15rem;
+  color: #1a202c;
+  font-weight: 700;
+}
+
+.active-sub-title {
+  font-size: 0.82rem;
+  color: #a0aec0;
+  font-weight: 500;
+}
+
+/* Rating setup matrix stars layout */
+.rating-stars {
+  font-size: 0.8rem;
+}
+
+.star-filled {
+  color: #ffc107;
+}
+
+.star-empty {
+  color: #e2e8f0;
+}
+
+.rating-score {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #718096 !important;
+}
+
+/* Footer elements configurations tags links layouts */
+.price-tag {
+  font-size: 1.3rem !important;
+  font-weight: 700;
+  color: #1a202c !important;
+}
+
+.price-currency {
+  font-size: 0.85rem !important;
+  color: #718096 !important;
+}
+
+.action-details-link {
+  color: #0086ff !important;
+  font-size: 0.88rem;
+  transition: color 0.2s ease;
+}
+
+.action-details-link:hover {
+  color: #0069c9 !important;
+}
+
+.arrow-icon {
+  font-size: 0.72rem;
+  transition: transform 0.2s ease;
+}
+
+.action-details-link:hover .arrow-icon {
+  transform: translateX(-3px);
+}
+
+/* Empty states screen configuration container elements */
+.no-results-box {
+  background-color: #ffffff;
+  border: 1px dashed #cbd5e1;
+}
