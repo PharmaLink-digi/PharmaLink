@@ -1,0 +1,176 @@
+/* Wrapper to hold the navbar and keep it full width but allow internal centering */
+.navbar-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 15px 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Centered modern container */
+.navbar-container {
+  width: 70%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px; /* Reduced padding for compact look */
+  background-color: #ffffff;
+  border-radius: 100px; /* Pill shape / soft border radius */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); /* Light shadow */
+  border: 1px solid rgba(0, 0, 0, 0.04); /* Very soft border */
+}
+
+/* Logo section */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Tighter gap */
+  cursor: pointer;
+}
+
+.logo-icon {
+  background: linear-gradient(135deg, #0062ff, #00d4ff);
+  color: white;
+  width: 32px; /* Smaller icon */
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.logo-text {
+  font-size: 20px; /* Slightly smaller text */
+  font-weight: 700;
+  color: #00b4d8; 
+}
+
+/* Navigation links */
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 12px; /* Tighter spacing */
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  color: #6c757d;
+  font-size: 14px; /* Smaller cleaner text */
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 14px; /* Tighter padding */
+  border-radius: 20px; /* Pill shape for active item background */
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  color: #0062ff;
+  background-color: #f8f9fa;
+}
+
+/* Active state for Home */
+.nav-item.active {
+  background-color: #f0f6ff;
+  color: #0062ff;
+  font-weight: 600;
+}
+
+/* Actions section */
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Tighter gap */
+}
+
+/* Smaller buttons with pill shapes */
+.btn-lang {
+  background-color: transparent;
+  border: 1px solid #e0e0e0;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-lang:hover {
+  background-color: #f8f9fa;
+  border-color: #d0d0d0;
+}
+
+.btn-login {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-login:hover {
+  background-color: #f8f9fa;
+  border-color: #d0d0d0;
+}
+
+/* Blue/Teal gradient button for Sign Up */
+.btn-signup {
+  background: linear-gradient(135deg, #0062ff, #00d4ff);
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 7px 18px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 150, 255, 0.2);
+}
+
+.btn-signup:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(0, 150, 255, 0.3);
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 1024px) {
+  .navbar-container {
+    width: 90%; /* Expand width on medium screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    width: 95%;
+  }
+  .navbar-links {
+    display: none; /* Hide links on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-wrapper {
+    padding: 10px;
+  }
+  
+  .navbar-container {
+    padding: 8px 16px;
+  }
+  
+  .logo-text {
+    display: none; /* Show only icon on very small screens */
+  }
+  
+  .btn-login {
+    display: none; /* Hide login text, keep sign up */
+  }
+}

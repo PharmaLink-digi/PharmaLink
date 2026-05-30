@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../firebase.js";
 
 const SignInForm = () => {
-  const [accountType, setAccountType] = useState("مريض");
+  const { t, i18n } = useTranslation();
+  const [accountType, setAccountType] = useState(t('auth.patient'));
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -13,10 +19,10 @@ const SignInForm = () => {
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const accountOptions = [
-    "مريض",
-    "صيدلية",
-    "مستودع",
-    "شركة أدوية",
+    t('auth.patient'),
+    t('auth.pharmacy'),
+    t('auth.warehouse'),
+    t('auth.company'),
   ];
 
   // قفل الـ dropdown لما تدوس برا
@@ -46,18 +52,43 @@ const SignInForm = () => {
     };
   }, []);
 
-  const handleLogin = (e) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    try {
+      // fallback: https://pharmalink-back-end.onrender.com
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, {
+        email,
+        password
+      });
+      alert(t('auth.loginAlert', { type: accountType }) + " - Success");
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+      const errorMessage = error.response?.data?.message || "Something went wrong";
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    alert(
-      `مرحباً ${accountType}! يتم تسجيل الدخول...`
-    );
-
-    console.log({
-      accountType,
-      email,
-      password,
-    });
+  const signInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log(user);
+      // send data to backend
+      // fallback: https://pharmalink-back-end.onrender.com
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/send-email`, {
+        name: user.displayName,
+        email: user.email,
+      });
+      alert("Login Success & Welcome Email Sent");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -77,18 +108,18 @@ const SignInForm = () => {
                   </div>
 
                   <h2 className="fw-bold mb-1 signin-title">
-                    مرحباً بعودتك
+                    {t('auth.welcomeBack')}
                   </h2>
 
                   <p className="text-muted fs-6 mt-1">
-                    سجل دخولك للمتابعة
+                    {t('auth.loginToContinue')}
                   </p>
                 </div>
 
                 {/* نوع الحساب */}
                 <div className="mb-4">
                   <label className="form-label fw-semibold d-block text-end mb-2">
-                    نوع الحساب
+                    {t('auth.accountType')}
                   </label>
 
                   <div className="signin-dropdown">
@@ -146,7 +177,7 @@ const SignInForm = () => {
                 {/* Email */}
                 <div className="mb-4">
                   <label className="form-label fw-semibold d-block text-end mb-2">
-                    البريد الإلكتروني
+                    {t('auth.email')}
                   </label>
 
                   <div
@@ -159,7 +190,7 @@ const SignInForm = () => {
                     <input
                       type="email"
                       className="signin-input"
-                      placeholder="أدخل بريدك الإلكتروني"
+                      placeholder={t('auth.emailPlaceholder')}
                       value={email}
                       onChange={(e) =>
                         setEmail(
@@ -184,18 +215,15 @@ const SignInForm = () => {
                 <div className="mb-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <label className="form-label fw-semibold m-0">
-                      كلمة المرور
+                      {t('auth.password')}
                     </label>
 
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="signin-forgot-link text-decoration-none small"
-                      onClick={(e) =>
-                        e.preventDefault()
-                      }
                     >
-                      نسيت كلمة المرور؟
-                    </a>
+                      {t('auth.forgotPassword')}
+                    </Link>
                   </div>
 
                   <div
@@ -213,7 +241,7 @@ const SignInForm = () => {
                             : "password"
                         }
                         className="signin-input signin-password-input"
-                        placeholder="أدخل كلمة المرور"
+                        placeholder={t('auth.passwordPlaceholder')}
                         value={password}
                         onChange={(e) =>
                           setPassword(
@@ -256,13 +284,22 @@ const SignInForm = () => {
                 {/* Login */}
                 <button
                   onClick={handleLogin}
+                  disabled={isLoading}
                   className="signin-btn btn w-100 py-3 rounded-3 d-flex align-items-center justify-content-center gap-2 border-0 fw-bold fs-6"
                 >
                   <span>
-                    تسجيل الدخول
+                    {isLoading ? "Logging in..." : t('auth.loginBtn')}
                   </span>
 
                   <i className="bi bi-box-arrow-in-left fs-5"></i>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={signInWithGoogle}
+                  className="btn btn-light w-100 mt-3 py-3 rounded-3 border fw-bold fs-6"
+                >
+                  Continue with Google
                 </button>
 
                 {/* Footer */}
@@ -274,9 +311,9 @@ const SignInForm = () => {
                       e.preventDefault()
                     }
                   >
-                    ليس لديك حساب؟{" "}
+                    {t('auth.noAccount')}{" "}
                     <span className="fw-bold">
-                      سجل الآن
+                      {t('auth.registerNow')}
                     </span>
                   </a>
                 </div>

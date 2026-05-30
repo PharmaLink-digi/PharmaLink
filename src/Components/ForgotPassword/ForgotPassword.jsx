@@ -1,19 +1,36 @@
 import { useState } from 'react'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '../../firebase.js'
+import { Link } from 'react-router-dom'
 import './ForgotPassword.css'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     if (!email.trim()) return
-    setSubmitted(true)
+    
+    setError('')
+    setLoading(true)
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setSubmitted(true)
+    } catch (err) {
+      console.error(err)
+      setError(err.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const resetForm = () => {
     setSubmitted(false)
     setEmail('')
+    setError('')
   }
 
   return (
@@ -27,6 +44,9 @@ export default function ForgotPassword() {
           </div>
           <h1>هل نسيت كلمة المرور؟</h1>
           <p className="subtitle">سنرسل لك رابط إعادة التعيين على بريدك الإلكتروني</p>
+          
+          {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
           <form className="reset-form" onSubmit={handleSubmit}>
             <label htmlFor="email">البريد الإلكتروني</label>
             <input className="email-input"
@@ -37,13 +57,13 @@ export default function ForgotPassword() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <button type="submit" className="submit-button">
-              إرسال رابط إعادة التعيين
+            <button type="submit" className="submit-button" disabled={loading}>
+              {loading ? "جاري الإرسال..." : "إرسال رابط إعادة التعيين"}
             </button>
           </form>
-          <button type="button" className="link-button" onClick={resetForm}>
+          <Link to="/signin" className="link-button" style={{ display: 'inline-block', textDecoration: 'none', marginTop: '10px' }}>
             ← العودة لتسجيل الدخول
-          </button>
+          </Link>
         </section>
 
         <section className="card-face card-back">
@@ -54,9 +74,9 @@ export default function ForgotPassword() {
           </div>
           <h1>تم الإرسال!</h1>
           <p className="subtitle">لقد أرسلنا رابط إعادة التعيين إلى بريدك الإلكتروني.</p>
-          <button type="button" className="submit-button" onClick={resetForm}>
+          <Link to="/signin" className="submit-button" style={{ display: 'inline-block', textDecoration: 'none', textAlign: 'center' }}>
             العودة لتسجيل الدخول
-          </button>
+          </Link>
         </section>
       </div>
     </main>

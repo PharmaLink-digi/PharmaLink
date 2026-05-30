@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Search.css';
 
-const API_URL = 'https://pharmalink-back-end-2.onrender.com/getmedications';
+const API_URL = 'https://pharmalink-back-end-2.onrender.com/medications';
 
 const mapMedication = (item) => ({
   id: item.medication_id,
@@ -17,12 +19,32 @@ const mapMedication = (item) => ({
 });
 
 export default function Search() {
+  const { t } = useTranslation();
   const [medicines, setMedicines] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 9;
+
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedTypes([categoryParam]);
+    } else {
+      setSelectedTypes([]);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedTypes]);
 
   useEffect(() => {
     async function fetchData() {
@@ -36,8 +58,7 @@ export default function Search() {
           throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
         }
         const transformed = data.map(mapMedication);
-        const useItems = transformed.length > 12 ? transformed.slice(0, Math.ceil(transformed.length / 2)) : transformed;
-        setMedicines(useItems);
+        setMedicines(transformed);
       } catch (fetchError) {
         setError(fetchError.message || 'حدث خطأ أثناء جلب البيانات');
       } finally {
@@ -64,6 +85,28 @@ export default function Search() {
     return matchesSearch && matchesType;
   });
 
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  const paginatedMedicines = filteredMedicines.slice(
+    startIndex,
+    endIndex
+  );
+
+  const totalPages = Math.ceil(filteredMedicines.length / ITEMS_PER_PAGE);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
+
   const toggleType = (type) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((item) => item !== type) : [...prev, type]
@@ -78,8 +121,8 @@ export default function Search() {
     <div className="medicine-search-bg" dir="rtl">
       <div className="container py-5 px-4 px-md-5">
         <div className="mb-4 text-end">
-          <h2 className="fw-bold text-dark header-title mb-1">البحث عن الأدوية</h2>
-          <p className="text-muted subtitle-text">ابحث باستخدام اسم الدواء أو المكون الفعال</p>
+          <h2 className="fw-bold text-dark header-title mb-1">{t('search.title')}</h2>
+          <p className="text-muted subtitle-text">{t('search.subtitle')}</p>
         </div>
 
         <div className="row g-3 mb-4 align-items-center">
@@ -88,7 +131,7 @@ export default function Search() {
               <input
                 type="text"
                 className="form-control search-field py-3 pe-4 ps-5"
-                placeholder="ابحث عن الأدوية..."
+                placeholder={t('search.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -97,7 +140,7 @@ export default function Search() {
           </div>
           <div className="col-6 col-md-2 col-lg-2">
             <button type="button" className="btn btn-search w-100 py-3 fw-medium">
-              بحث
+              {t('search.searchBtn')}
             </button>
           </div>
           <div className="col-6 col-md-2 col-lg-3">
@@ -107,13 +150,13 @@ export default function Search() {
               onClick={() => setSidebarOpen(true)}
             >
               <i className="bi bi-sliders"></i>
-              الفلاتر
+              {t('search.filtersBtn')}
             </button>
           </div>
         </div>
 
         <div className="text-end mb-4 results-count-text text-secondary fw-semibold">
-          {loading ? 'جارٍ تحميل البيانات...' : `نتائج ${filteredMedicines.length}`}
+          {loading ? t('search.loading') : t('search.resultsCount', { count: filteredMedicines.length })}
         </div>
 
         {error ? (
@@ -130,8 +173,8 @@ export default function Search() {
               <div className="filter-drawer" onClick={(e) => e.stopPropagation()}>
                 <div className="drawer-header mb-3 position-relative">
                   <button type="button" className="btn-close filter-close" onClick={() => setSidebarOpen(false)} aria-label="Close"></button>
-                  <h5 className="drawer-title text-center mb-1">التصفية حسب النوع</h5>
-                  <p className="mb-0 text-muted small text-center">اختر النوع لعرض الأدوية المناسبة</p>
+                  <h5 className="drawer-title text-center mb-1">{t('search.filterTitle')}</h5>
+                  <p className="mb-0 text-muted small text-center">{t('search.filterSubtitle')}</p>
                 </div>
 
                 <div className="mb-4">
@@ -151,10 +194,10 @@ export default function Search() {
 
                 <div className="d-flex justify-content-between gap-3">
                   <button type="button" className="btn btn-outline-secondary w-100" onClick={clearFilters}>
-                    مسح الفلاتر
+                    {t('search.clearFilters')}
                   </button>
                   <button type="button" className="btn btn-search w-100" onClick={() => setSidebarOpen(false)}>
-                    تطبيق الفلاتر
+                    {t('search.applyFilters')}
                   </button>
                 </div>
               </div>
@@ -163,16 +206,17 @@ export default function Search() {
             {filteredMedicines.length === 0 ? (
               <div className="text-center py-5 no-results-box my-4 rounded-4">
                 <i className="bi bi-exclamation-circle text-muted fs-1 mb-2 d-block"></i>
-                <h4 className="text-muted fw-bold m-0">لا توجد نتائج</h4>
+                <h4 className="text-muted fw-bold m-0">{t('search.noResults')}</h4>
               </div>
             ) : (
-              <div className="row g-4">
-                {filteredMedicines.map((med) => (
-                  <div key={med.id} className="col-12 col-md-6 col-lg-4">
+              <>
+                <div className="row g-4">
+                  {paginatedMedicines.map((med) => (
+                    <div key={med.id} className="col-12 col-md-6 col-lg-4">
                     <div className="card h-100 medicine-item-card border-0 p-4">
                       <div className="d-flex justify-content-between align-items-start mb-3">
                         <span className={`badge status-pill px-3 py-2 fw-medium ${med.inStock ? 'status-green' : 'status-red'}`}>
-                          {med.status}
+                          {med.inStock ? t('medications.inStock') : t('medications.outOfStock')}
                         </span>
                         <div className="icon-pill-circle d-flex align-items-center justify-content-center">
                           <i className="bi bi-capsule text-primary fs-5"></i>
@@ -199,11 +243,11 @@ export default function Search() {
 
                       <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
                         <div className="price-tag fw-bold text-dark fs-5">
-                          <span className="price-currency fs-6 fw-normal text-secondary me-1">دولارًا</span>
+                          <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
                           {med.price.toFixed(2)}
                         </div>
                         <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
-                          تفاصيل
+                          {t('search.details')}
                           <i className="bi bi-chevron-left arrow-icon"></i>
                         </a>
                       </div>
@@ -211,6 +255,29 @@ export default function Search() {
                   </div>
                 ))}
               </div>
+
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center align-items-center gap-2 mt-5 mb-4 pagination-controls" dir="ltr">
+                  <button 
+                    className="btn btn-outline-primary px-4" 
+                    onClick={handlePrevPage} 
+                    disabled={currentPage === 1}
+                  >
+                    {t('search.prev')}
+                  </button>
+                  <span className="fw-medium mx-3">
+                    {t('search.pageOf', { current: currentPage, total: totalPages })}
+                  </span>
+                  <button 
+                    className="btn btn-outline-primary px-4" 
+                    onClick={handleNextPage} 
+                    disabled={currentPage === totalPages}
+                  >
+                    {t('search.next')}
+                  </button>
+                </div>
+              )}
+            </>
             )}
           </>
         )}

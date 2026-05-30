@@ -3,9 +3,10 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Medications.css";
+import { useTranslation } from "react-i18next";
 
 export default function Medications() {
-
+  const { t } = useTranslation();
   const [medications, setMedications] = useState([]);
 
   async function getMedications() {
@@ -13,7 +14,7 @@ export default function Medications() {
     try {
 
       const response = await axios.get(
-        "https://pharmalink-back-end-2.onrender.com/getmedications"
+        "https://pharmalink-back-end-2.onrender.com/medications"
       );
 
       // أول 8 أدوية فقط
@@ -38,15 +39,11 @@ export default function Medications() {
       <div className="mb-5">
 
         <h1 className="fw-bold trending-title">
-
-          Trending Medicines
-
+          {t('medications.trendingTitle')}
         </h1>
 
         <p className="text-secondary fs-5">
-
-          Most searched medicines this week
-
+          {t('medications.trendingSubtitle')}
         </p>
 
       </div>
@@ -86,7 +83,7 @@ export default function Medications() {
               {/* AVAILABLE */}
               <span className="available-badge">
 
-                In Stock
+                {t('medications.inStock')}
 
               </span>
 
@@ -122,11 +119,11 @@ export default function Medications() {
       <div className="text-center mt-5">
 
         <Link
-          to="/allmedicines"
-          className="view-link"
+          to="/search"
+        className="view-link"
         >
 
-          View all medicines
+          {t('medications.viewAll')}
           <i className="bi bi-arrow-right ms-2"></i>
 
         </Link>

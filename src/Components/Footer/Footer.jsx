@@ -1,7 +1,9 @@
-﻿import React, { useState } from "react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
-  const [activeLang, setActiveLang] = useState("EN");
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language?.startsWith("ar") ? "AR" : "EN";
 
   return (
     <footer className="footer">
@@ -48,49 +50,48 @@ const Footer = () => {
               <span className="brand-title">PharmaLink</span>
             </div>
             <p className="brand-copy">
-              The integrated healthcare platform connecting patients, pharmacies,
-              and pharmaceutical companies.
+              {t('footer.brandCopy')}
             </p>
           </div>
 
           <div className="footer-column">
-            <h6>Product</h6>
+            <h6>{t('footer.product')}</h6>
             <ul className="footer-links">
               <li>
-                <a href="#search">Search Medicines</a>
+                <a href="#search">{t('footer.searchMedicines')}</a>
               </li>
               <li>
-                <a href="#register">Register</a>
+                <a href="#register">{t('footer.register')}</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-column">
-            <h6>Company</h6>
+            <h6>{t('footer.company')}</h6>
             <ul className="footer-links">
               <li>
-                <a href="#about">About</a>
+                <a href="#about">{t('footer.about')}</a>
               </li>
               <li>
-                <a href="#privacy">Privacy</a>
+                <a href="#privacy">{t('footer.privacy')}</a>
               </li>
             </ul>
           </div>
 
           <div className="footer-column footer-language">
-            <h6>Language</h6>
+            <h6>{t('footer.language')}</h6>
             <div className="language-buttons">
               <button
                 type="button"
-                className={`lang-button ${activeLang === "EN" ? "active" : ""}`}
-                onClick={() => setActiveLang("EN")}
+                className={`lang-button ${currentLang === "EN" ? "active" : ""}`}
+                onClick={() => i18n.changeLanguage("en")}
               >
                 EN
               </button>
               <button
                 type="button"
-                className={`lang-button ${activeLang === "AR" ? "active" : ""}`}
-                onClick={() => setActiveLang("AR")}
+                className={`lang-button ${currentLang === "AR" ? "active" : ""}`}
+                onClick={() => i18n.changeLanguage("ar")}
               >
                 عربي
               </button>
@@ -101,7 +102,7 @@ const Footer = () => {
         <div className="footer-divider" />
 
         <div className="footer-bottom">
-          <p>© 2026 PharmaLink. All rights reserved.</p>
+          <p>{t('footer.rights')}</p>
         </div>
       </div>
     </footer>

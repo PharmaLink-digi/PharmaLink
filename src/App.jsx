@@ -1,22 +1,44 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { BrowserRouter, Routes, Route, createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import Search from "./Components/Search/Search";
 import SignInForm from "./Components/SignInForm/SignInForm";
+import Layout from "./Components/Layout/Layout";
+import Signup from "./Components/Signup/Signup";
+import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Components/Footer/Footer.css';
+import { useTranslation } from "react-i18next";
+
 
 
 // import SignInForm from './Components/SignInForm/SignInForm'
+let router = createBrowserRouter([
+  {
+    path: "/", element: <Layout />, children: [
+      { path: "/", element: <Home /> },
+      { path: "/search", element: <Search /> },
+      { path: "/signin", element: <SignInForm /> },
+      { path: "/signup", element: <Signup /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+      // { path: "*", element: <NotFound /> }
+    ]
+  }
+])
 
 function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const isArabic = i18n.language?.startsWith('ar') || i18n.language === 'ar';
+    document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+    document.documentElement.lang = isArabic ? 'ar' : 'en';
+  }, [i18n.language]);
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/signin" element={<SignInForm />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+  <RouterProvider router={router}/>
+    </>
   );
 }
 
