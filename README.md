@@ -1,16 +1,49 @@
-# React + Vite
+# PharmaLink Landing Page
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern Arabic healthcare landing page built with React and Vite. This project includes a responsive RTL hero section, navigation, search UI, call-to-action buttons, and statistics cards.
 
-Currently, two official plugins are available:
+## ✅ Features
+- RTL Arabic layout with clean healthcare branding
+- Responsive hero section with search input and CTA buttons
+- Navigation bar with login and signup actions
+- Simple statistics cards for patients, pharmacies, and medicines
+- Built with React and Vite for fast development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Tech Stack
+- React 19
+- Vite
+- JavaScript (JSX)
+- Plain CSS
+- Optional dependencies installed for later use:
+  - `axios`
+  - `bootstrap`
+  - `formik`
+  - `yup`
+  - `react-router-dom`
 
-## React Compiler
+## 📁 Project Structure
+- `index.html` — app shell and entrypoint
+- `src/main.jsx` — React entry file
+- `src/App.jsx` — main landing page component
+- `src/index.css` — global and component styling
+- `src/utils/translations.js` — translations data placeholder
+- `public/` — public assets and static files
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🔧 Setup
+```bash
+cd "D:\Web Development\Back End\final\PharmaLink"
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Open the local URL shown in the terminal to preview the app.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Build
+```bash
+npm run build
+```
+
+## 📌 Notes
+- The current app is a static landing page template.
+- You can extend it with dynamic routing, API calls, and form handling using the installed dependencies.
+- To enable bilingual support, update `src/App.jsx` and use the translation entries in `src/utils/translations.js`.
