@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Search.css';
 
-const API_URL = 'https://pharmalink-back-end-2.onrender.com/medications';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_URL = `${API_BASE}/medications`;
 
 const mapMedication = (item) => ({
   id: item.medication_id,
@@ -213,77 +214,77 @@ export default function Search() {
                 <div className="row g-4">
                   {paginatedMedicines.map((med) => (
                     <div key={med.id} className="col-12 col-md-6 col-lg-4">
-                    <div className="card h-100 medicine-item-card border-0 p-4">
-                      <div className="d-flex justify-content-between align-items-start mb-3">
-                        <span className={`badge status-pill px-3 py-2 fw-medium ${med.inStock ? 'status-green' : 'status-red'}`}>
-                          {med.inStock ? t('medications.inStock') : t('medications.outOfStock')}
-                        </span>
-                        <div className="icon-pill-circle d-flex align-items-center justify-content-center">
-                          <i className="bi bi-capsule text-primary fs-5"></i>
+                      <div className="card h-100 medicine-item-card border-0 p-4">
+                        <div className="d-flex justify-content-between align-items-start mb-3">
+                          <span className={`badge status-pill px-3 py-2 fw-medium ${med.inStock ? 'status-green' : 'status-red'}`}>
+                            {med.inStock ? t('medications.inStock') : t('medications.outOfStock')}
+                          </span>
+                          <div className="icon-pill-circle d-flex align-items-center justify-content-center">
+                            <i className="bi bi-capsule text-primary fs-5"></i>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="text-start mb-3">
-                        <h5 className="fw-bold text-dark medicine-main-title mb-1">{med.name}</h5>
-                        <p className="text-muted active-sub-title mb-2">{med.active}</p>
-                        <span className="badge type-chip mb-3">{med.type}</span>
-                        <div className="d-flex align-items-center gap-1 rating-stars">
-                          {Array.from({ length: 5 }).map((_, idx) => {
-                            const isFilled = idx < Math.round(med.rating);
-                            return (
-                              <i
-                                key={idx}
-                                className={`bi ${isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'}`}
-                              ></i>
-                            );
-                          })}
-                          <span className="rating-score text-muted ms-2">{med.rating}</span>
+                        <div className="text-start mb-3">
+                          <h5 className="fw-bold text-dark medicine-main-title mb-1">{med.name}</h5>
+                          <p className="text-muted active-sub-title mb-2">{med.active}</p>
+                          <span className="badge type-chip mb-3">{med.type}</span>
+                          <div className="d-flex align-items-center gap-1 rating-stars">
+                            {Array.from({ length: 5 }).map((_, idx) => {
+                              const isFilled = idx < Math.round(med.rating);
+                              return (
+                                <i
+                                  key={idx}
+                                  className={`bi ${isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'}`}
+                                ></i>
+                              );
+                            })}
+                            <span className="rating-score text-muted ms-2">{med.rating}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
-                        <div className="price-tag fw-bold text-dark fs-5">
-                          {med.price !== null && med.price !== undefined ? (
-                            <>
-                              <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
-                              {Number(med.price).toFixed(2)}
-                            </>
-                          ) : (
-                            <span className="text-muted fs-6">Not Available</span>
-                          )}
+                        <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
+                          <div className="price-tag fw-bold text-dark fs-5">
+                            {med.price !== null && med.price !== undefined ? (
+                              <>
+                                <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
+                                {Number(med.price).toFixed(2)}
+                              </>
+                            ) : (
+                              <span className="text-muted fs-6">Not Available</span>
+                            )}
+                          </div>
+                          <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
+                            {t('search.details')}
+                            <i className="bi bi-chevron-left arrow-icon"></i>
+                          </a>
                         </div>
-                        <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
-                          {t('search.details')}
-                          <i className="bi bi-chevron-left arrow-icon"></i>
-                        </a>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center align-items-center gap-2 mt-5 mb-4 pagination-controls" dir="ltr">
-                  <button 
-                    className="btn btn-outline-primary px-4" 
-                    onClick={handlePrevPage} 
-                    disabled={currentPage === 1}
-                  >
-                    {t('search.prev')}
-                  </button>
-                  <span className="fw-medium mx-3">
-                    {t('search.pageOf', { current: currentPage, total: totalPages })}
-                  </span>
-                  <button 
-                    className="btn btn-outline-primary px-4" 
-                    onClick={handleNextPage} 
-                    disabled={currentPage === totalPages}
-                  >
-                    {t('search.next')}
-                  </button>
+                  ))}
                 </div>
-              )}
-            </>
+
+                {totalPages > 1 && (
+                  <div className="d-flex justify-content-center align-items-center gap-2 mt-5 mb-4 pagination-controls" dir="ltr">
+                    <button
+                      className="btn btn-outline-primary px-4"
+                      onClick={handlePrevPage}
+                      disabled={currentPage === 1}
+                    >
+                      {t('search.prev')}
+                    </button>
+                    <span className="fw-medium mx-3">
+                      {t('search.pageOf', { current: currentPage, total: totalPages })}
+                    </span>
+                    <button
+                      className="btn btn-outline-primary px-4"
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                    >
+                      {t('search.next')}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}

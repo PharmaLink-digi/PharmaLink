@@ -13,14 +13,16 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_URL = `${API_BASE}/medications`;
 
 export default function Category() {
-    const { t } = useTranslation();
-    const [categories, setCategories] = useState([]);
-    const navigate = useNavigate();
-    
-    // icons map
-    const icons = {
+  const { t } = useTranslation();
+  const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
+
+  // icons map
+  const icons = {
     Antibiotics: <FaCapsules />,
     "Pain Relief": <FaHeartbeat />,
     Diabetes: <FaFire />,
@@ -34,7 +36,7 @@ export default function Category() {
   async function getCategories() {
     try {
       const { data } = await axios.get(
-        "https://pharmalink-back-end-2.onrender.com/medications"
+        API_URL
       );
 
       // تجميع الأدوية حسب category
@@ -65,12 +67,12 @@ export default function Category() {
   useEffect(() => {
     getCategories();
   }, []);
-    const handleCategory = (category) => {
+  const handleCategory = (category) => {
     navigate(`/search?category=${category}`);
   };
   return (
     <>
-<section className="categories-section">
+      <section className="categories-section">
         <div className="container">
           <h2 className="section-title">{t('category.title')}</h2>
 

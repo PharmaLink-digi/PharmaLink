@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Medications.css";
 import { useTranslation } from "react-i18next";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_URL = `${API_BASE}/medications`;
 
 export default function Medications() {
   const { t } = useTranslation();
@@ -14,7 +16,7 @@ export default function Medications() {
     try {
 
       const response = await axios.get(
-        "https://pharmalink-back-end-2.onrender.com/medications"
+        API_URL
       );
 
       // أول 8 أدوية فقط
@@ -120,7 +122,7 @@ export default function Medications() {
 
         <Link
           to="/search"
-        className="view-link"
+          className="view-link"
         >
 
           {t('medications.viewAll')}
