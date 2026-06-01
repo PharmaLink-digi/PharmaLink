@@ -17,6 +17,7 @@ import Category from "./Category/Category";
 import Medications from "../Medications/Medications";
 import Testimonials from "./Testimonials/Testimonials";
 import JoinNow from "./JoinNow/JoinNow";
+import WhyUs from "./WhyUs/WhyUs";
 
 
 
@@ -27,6 +28,7 @@ export default function Home() {
       <Hero /> 
       <Medications/>
       <Category />
+      <WhyUs />
       <Testimonials/>
       <JoinNow/>
     </>
