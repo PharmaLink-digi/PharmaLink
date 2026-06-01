@@ -12,7 +12,7 @@ const mapMedication = (item) => ({
   name: item.medication_name,
   active: `${item.medication_type} • ${item.manufacturer}`,
   type: item.category || 'عام',
-  price: Number((5 + (item.medication_id % 10) * 2.35).toFixed(2)),
+  price: item.lowest_price,
   rating: Number((3.5 + (item.medication_id % 3) * 0.5).toFixed(1)),
   status: item.medication_id % 7 === 0 ? 'إنتهى من المخزن' : 'في الأوراق المالية',
   inStock: item.medication_id % 7 !== 0,
@@ -243,8 +243,14 @@ export default function Search() {
 
                       <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
                         <div className="price-tag fw-bold text-dark fs-5">
-                          <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
-                          {med.price.toFixed(2)}
+                          {med.price !== null && med.price !== undefined ? (
+                            <>
+                              <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
+                              {Number(med.price).toFixed(2)}
+                            </>
+                          ) : (
+                            <span className="text-muted fs-6">Not Available</span>
+                          )}
                         </div>
                         <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
                           {t('search.details')}

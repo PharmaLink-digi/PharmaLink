@@ -77,7 +77,7 @@ export default {
     "clearFilters": "مسح الفلاتر",
     "applyFilters": "تطبيق الفلاتر",
     "noResults": "لا توجد نتائج",
-    "currency": "دولاراً",
+    "currency": "جنيهاً",
     "details": "تفاصيل",
     "prev": "السابق",
     "next": "التالي",

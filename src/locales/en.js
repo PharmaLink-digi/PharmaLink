@@ -77,7 +77,7 @@ export default {
     "clearFilters": "Clear Filters",
     "applyFilters": "Apply Filters",
     "noResults": "No results found",
-    "currency": "USD",
+    "currency": "EGP",
     "details": "Details",
     "prev": "Previous",
     "next": "Next",
