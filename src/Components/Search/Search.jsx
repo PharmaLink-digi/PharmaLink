@@ -47,28 +47,58 @@ export default function Search() {
     setCurrentPage(1);
   }, [searchTerm, selectedTypes]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error(`خطأ في جلب البيانات: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
-        }
-        const transformed = data.map(mapMedication);
-        setMedicines(transformed);
-      } catch (fetchError) {
-        setError(fetchError.message || 'حدث خطأ أثناء جلب البيانات');
-      } finally {
-        setLoading(false);
-      }
-    }
+  const fetchMedicines = async (query = '') => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    fetchData();
+      const url = query 
+        ? `${API_BASE}/medications/search?query=${encodeURIComponent(query)}` 
+        : `${API_BASE}/medications`;
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        if (response.status === 404 && query) {
+          setMedicines([]);
+          return;
+        }
+        throw new Error(`خطأ في جلب البيانات: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      let medsArray = [];
+      
+      if (query && data.results) {
+        medsArray = data.results;
+      } else if (Array.isArray(data)) {
+        medsArray = data;
+      } else {
+        throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
+      }
+      
+      const transformed = medsArray.map(mapMedication);
+      setMedicines(transformed);
+    } catch (fetchError) {
+      setError(fetchError.message || 'حدث خطأ أثناء جلب البيانات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedicines('');
   }, []);
+
+  const handleSearch = () => {
+    fetchMedicines(searchTerm.trim());
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const allTypes = useMemo(
     () => Array.from(new Set(medicines.map((item) => item.type))),
@@ -76,14 +106,9 @@ export default function Search() {
   );
 
   const filteredMedicines = medicines.filter((medicine) => {
-    const term = searchTerm.toLowerCase().trim();
-    const matchesSearch =
-      medicine.name.toLowerCase().includes(term) ||
-      medicine.active.toLowerCase().includes(term) ||
-      medicine.type.toLowerCase().includes(term);
     const matchesType =
       selectedTypes.length === 0 || selectedTypes.includes(medicine.type);
-    return matchesSearch && matchesType;
+    return matchesType;
   });
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -135,12 +160,13 @@ export default function Search() {
                 placeholder={t('search.placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
               <i className="bi bi-search search-field-icon position-absolute"></i>
             </div>
           </div>
           <div className="col-6 col-md-2 col-lg-2">
-            <button type="button" className="btn btn-search w-100 py-3 fw-medium">
+            <button type="button" className="btn btn-search w-100 py-3 fw-medium" onClick={handleSearch}>
               {t('search.searchBtn')}
             </button>
           </div>
