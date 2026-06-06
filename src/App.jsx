@@ -8,7 +8,8 @@ import "./Components/Home/Home.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SignInForm from "./Components/SignInForm/SignInForm";
-import { RouterProvider } from "react-router-dom";
+import PharmacyInventory from "./Components/PharmacyInventory/PharmacyInventory";
+import WarehouseInventory from "./Components/WarehouseInventory/WarehouseInventory";
 
 
 
@@ -19,12 +20,21 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
+      {/* <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />,
+          <Route path="signup" element={<SignInForm />} />,
+          <Route path="SignInForm" element={<SignInForm />} />,
+          <Route path="pharmacy-inventory" element={<PharmacyInventory />} />,
+          <Route path="warehouse-inventory" element={<WarehouseInventory />} />
         </Routes>
-      </BrowserRouter>
-     <SignInForm/>
+      </BrowserRouter> */}
+
+      {/* <Home /> */}
+      <PharmacyInventory />
+      <WarehouseInventory />
+      <SignInForm />
+
     </>
   );
 }

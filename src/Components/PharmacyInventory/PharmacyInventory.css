@@ -1,0 +1,71 @@
+.inventory-section {
+  background: #f5f7fb;
+}
+
+.inventory-card {
+  background: #f8fbff;
+  border: none;
+}
+
+.inventory-header {
+  background: #ffffff;
+  border: 1px solid #e6ebf3;
+  padding: 1.2rem 1.4rem;
+}
+
+.inventory-search-input {
+  min-height: 56px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.inventory-search-input .form-control {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.inventory-search-input .form-control:focus {
+  box-shadow: none;
+}
+
+.inventory-search-input .input-group-text {
+  border: none;
+  background: transparent;
+  color: #8e9cb3;
+  font-size: 1.1rem;
+}
+
+.inventory-status-button {
+  min-width: 165px;
+  border-radius: 999px;
+}
+
+.inventory-table-wrapper {
+  background: #f4f8ff;
+  border-radius: 24px;
+  padding: 1rem;
+}
+
+.inventory-table-wrapper .table {
+  background: #ffffff;
+  border-radius: 20px;
+}
+
+.inventory-table-wrapper .table thead th {
+  border-bottom: 2px solid #e6ebf3;
+}
+
+.inventory-table-wrapper .table th,
+.inventory-table-wrapper .table td {
+  border-color: #e8eef7;
+}
+
+.inventory-card h3 {
+  font-weight: 700;
+}
+
+.inventory-card p {
+  color: #6c7a93;
+}
+

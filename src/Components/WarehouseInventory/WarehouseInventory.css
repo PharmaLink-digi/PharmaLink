@@ -1,0 +1,65 @@
+.warehouse-section {
+  background: #f5f7fb;
+}
+
+.warehouse-card {
+  background: #f8fbff;
+  border: none;
+}
+
+.warehouse-header {
+  background: #ffffff;
+  border: 1px solid #e6ebf3;
+  padding: 1.2rem 1.4rem;
+}
+
+.warehouse-search-input {
+  min-height: 56px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.warehouse-search-input .form-control {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.warehouse-search-input .form-control:focus {
+  box-shadow: none;
+}
+
+.warehouse-search-input .input-group-text {
+  border: none;
+  background: transparent;
+  color: #8e9cb3;
+  font-size: 1.1rem;
+}
+
+.warehouse-table-wrapper {
+  background: #f4f8ff;
+  border-radius: 24px;
+  padding: 1rem;
+}
+
+.warehouse-table-wrapper .table {
+  background: #ffffff;
+  border-radius: 20px;
+}
+
+.warehouse-table-wrapper .table thead th {
+  border-bottom: 2px solid #e6ebf3;
+}
+
+.warehouse-table-wrapper .table th,
+.warehouse-table-wrapper .table td {
+  border-color: #e8eef7;
+}
+
+.warehouse-card h3 {
+  font-weight: 700;
+}
+
+.warehouse-card p {
+  color: #6c7a93;
+}
