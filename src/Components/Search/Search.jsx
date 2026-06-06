@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Search.css';
 
-const API_URL = 'https://pharmalink-back-end-2.onrender.com/getmedications';
+const API_URL = 'https://pharmalink-back-end.onrender.com/medications';
 
 const mapMedication = (item) => ({
   id: item.medication_id,
