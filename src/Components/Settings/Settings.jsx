@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FiGlobe, FiBell, FiLogOut } from 'react-icons/fi'
 import './Settings.css'
 

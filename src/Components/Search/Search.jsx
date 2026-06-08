@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './Search.css';
-
-const API_URL = 'https://pharmalink-back-end.onrender.com/medications';
+import { fetchMedications } from '../../api';
 
 const mapMedication = (item) => ({
   id: item.medication_id,
@@ -27,11 +26,7 @@ export default function Search() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error(`خطأ في جلب البيانات: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchMedications();
         if (!Array.isArray(data)) {
           throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
         }
