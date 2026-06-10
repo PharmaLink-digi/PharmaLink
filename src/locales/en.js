@@ -407,5 +407,23 @@ export default {
       "delivery": { "title": "Fast Delivery", "desc": "Quick delivery service to your doorstep" },
       "prescriptions": { "title": "Prescriptions", "desc": "Manage your prescriptions easily" }
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "profileLabel": "Profile Information",
+    "name": "User",
+    "email": "user@pharmalink.com",
+    "languageLabel": "Language",
+    "english": "English",
+    "arabic": "العربية",
+    "englishDesc": "Left to right",
+    "arabicDesc": "Right to left",
+    "notificationsLabel": "Notifications",
+    "orderUpdates": "Order Updates",
+    "deliveryAlerts": "Delivery Alerts",
+    "stockAlerts": "Stock Alerts",
+    "medicationReminders": "Medication Reminders",
+    "logout": "Logout"
   }
 };

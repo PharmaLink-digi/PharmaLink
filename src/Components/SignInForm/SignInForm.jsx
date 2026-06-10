@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
@@ -7,6 +7,7 @@ import { auth, provider } from "../../firebase.js";
 
 const SignInForm = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const [accountType, setAccountType] = useState(t('auth.patient'));
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -63,8 +64,14 @@ const SignInForm = () => {
         email,
         password
       });
+      const user = response.data.user || {};
+      const userId = user.client_id || user.id || user.pharm_id || user.warehouse_id || response.data.userId;
+      if (userId) localStorage.setItem("userId", userId);
+      if (response.data.token) localStorage.setItem("token", response.data.token);
+
       alert(t('auth.loginAlert', { type: accountType }) + " - Success");
       console.log(response.data);
+      navigate('/');
     } catch (error) {
       console.log(error);
       const errorMessage = error.response?.data?.message || "Something went wrong";

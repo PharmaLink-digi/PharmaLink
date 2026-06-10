@@ -111,6 +111,23 @@ const Navbar = () => {
             </button>
           ))}
         </Link>
+        <Link to="/order-dashboard" className="text-decoration-none">
+          <button
+            onMouseEnter={navHover}
+            onMouseLeave={navLeave}
+            className="border-0 fw-semibold"
+            style={{
+              background: "transparent",
+              color: "#4b5563",
+              borderRadius: "14px",
+              padding: "9px 18px",
+              fontSize: "15px",
+              transition: "0.3s ease",
+            }}
+          >
+            Order Dashboard
+          </button>
+        </Link>
       </div>
 
       {/* Actions */}

@@ -406,5 +406,23 @@ export default {
       "delivery": {"title": "توصيل سريع","desc": "خدمة توصيل سريعة لباب منزلك"},
       "prescriptions": {"title": "وصفات طبية","desc": "إدارة وصفاتك بسهولة"}
     }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة حسابك وتفضيلاتك",
+    "profileLabel": "الملف الشخصي",
+    "name": "User",
+    "email": "user@pharmalink.com",
+    "languageLabel": "اللغة",
+    "english": 'English',
+    "arabic": 'العربية',
+    "englishDesc": 'Left to right',
+    "arabicDesc": 'من اليمين لليسار',
+    "notificationsLabel": 'الإشعارات',
+    "orderUpdates": 'تحديثات الطلبات',
+    "deliveryAlerts": 'تنبيهات التوصيل',
+    "stockAlerts": 'تنبيهات المخزون',
+    "medicationReminders": 'تذكيرات الأدوية',
+    "logout": 'تسجيل الخروج',
   }
 };

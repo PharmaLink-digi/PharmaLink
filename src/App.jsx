@@ -9,6 +9,17 @@ import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Components/Footer/Footer.css';
 import { useTranslation } from "react-i18next";
+import Settings from "./Components/Settings/Settings";
+import OrderDashboard from "./Components/OrderDashboard/OrderDashboard";
+import { Navigate } from "react-router-dom";
+
+const ProtectedRoute = ({ children }) => {
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    return <Navigate to="/signin" replace />;
+  }
+  return children;
+};
 
 
 
@@ -21,6 +32,8 @@ let router = createBrowserRouter([
       { path: "/signin", element: <SignInForm /> },
       { path: "/signup", element: <Signup /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
+      { path: "/settings", element: <ProtectedRoute><Settings /></ProtectedRoute> },
+      { path: "/order-dashboard", element: <ProtectedRoute><OrderDashboard /></ProtectedRoute> },
       // { path: "*", element: <NotFound /> }
     ]
   }

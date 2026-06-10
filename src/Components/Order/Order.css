@@ -1,0 +1,45 @@
+.page-bg {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.order-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  border: none;
+}
+
+.tracking-card {
+  background-color: #f8fafc;
+  border-radius: 20px;
+  border: none;
+}
+
+.status-badge {
+  background-color: #dcfce7;
+  color: #16a34a;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+}
+
+.timeline-line {
+  height: 3px;
+  background-color: #bfdbfe;
+}
+
+.timeline-circle {
+  width: 50px;
+  height: 50px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.total-price {
+  color: #3b82f6;
+  font-weight: bold;
+}

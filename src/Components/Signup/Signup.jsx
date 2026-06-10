@@ -7,10 +7,12 @@ import axios from "axios";
 import {
   signInWithPopup,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 import { auth, provider } from "../../firebase.js";
 
 const Signup = () => {
+  const navigate = useNavigate();
 
   async function signInWithGoogle() {
 
@@ -87,11 +89,18 @@ const Signup = () => {
           payload
         );
 
+        const userData = Array.isArray(response.data) ? response.data[0] : response.data;
+        const userId = userData?.client_id || userData?.id || userData?.pharm_id || userData?.warehouse_id;
+        
+        if (userId) localStorage.setItem("userId", userId);
+        if (userData?.token) localStorage.setItem("token", userData.token);
+
         console.log(response.data);
 
         alert("Account Created Successfully");
 
         resetForm();
+        navigate('/');
 
       } catch (error) {
 
