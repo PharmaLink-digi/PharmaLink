@@ -1,38 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { Capsule, GeoAlt, GeoAltFill, StarFill, Search } from "react-bootstrap-icons";
+import { useCart } from "../../context/CartContext";
 
-// Pharmacy details fallback mapping
-const pharmacyDetails = {
-  1: { name: "Al-Shifa Pharmacy", distance: "0.8 km away" },
-  2: { name: "City Care Pharmacy", distance: "1.5 km away" },
-  3: { name: "Noor Medical", distance: "2.1 km away" },
-  4: { name: "Al-Majd Pharmacy", distance: "2.8 km away" },
-  5: { name: "El-Ezaby Pharmacy", distance: "3.5 km away" },
-  6: { name: "Care Pharmacy", distance: "4.2 km away" },
-  7: { name: "Seif Pharmacy", distance: "4.9 km away" },
-  8: { name: "19019 Pharmacy", distance: "5.5 km away" },
-  9: { name: "Misr Pharmacy", distance: "6.2 km away" },
-  10: { name: "Al-Eman Pharmacy", distance: "7.0 km away" },
-};
-
-const MedicineDetails = ({ cartItems, cartCount, addToCart, onNavigateToCart }) => {
+const MedicineDetails = () => {
+  const { cartCount, addToCart } = useCart();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [allInventory, setAllInventory] = useState([]);
   const [allPharmacies, setAllPharmacies] = useState([]);
   const [uniqueMedications, setUniqueMedications] = useState([]);
-  const [activeMedication, setActiveMedication] = useState("Paracetamol");
+  const [activeMedication, setActiveMedication] = useState(location.state?.name || "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Auth guard — redirect to sign-in if not logged in
   useEffect(() => {
-    // Fetch both inventory and pharmacy info in parallel
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      navigate("/signin", { state: { from: `/medicine-details/${id}` }, replace: true });
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetch both inventory and pharmacy info in parallel, plus medications to get the name if we only have ID
     Promise.all([
       axios.get("https://pharmalink-back-end.onrender.com/pharm-inventory"),
-      axios.get("https://pharmalink-back-end.onrender.com/pharm-info")
+      axios.get("https://pharmalink-back-end.onrender.com/pharm-info"),
+      axios.get("https://pharmalink-back-end.onrender.com/medications")
     ])
-      .then(([inventoryRes, pharmRes]) => {
+      .then(([inventoryRes, pharmRes, medsRes]) => {
         setAllInventory(inventoryRes.data);
         setAllPharmacies(pharmRes.data);
         
@@ -40,10 +41,23 @@ const MedicineDetails = ({ cartItems, cartCount, addToCart, onNavigateToCart }) 
         const uniqueNames = [...new Set(inventoryRes.data.map((item) => item.medication_name))];
         setUniqueMedications(uniqueNames);
         
-        // If Paracetamol is not in the list (fallback), select the first one
-        if (uniqueNames.length > 0 && !uniqueNames.includes("Paracetamol")) {
-          setActiveMedication(uniqueNames[0]);
+        // If an ID is passed in the URL, use it to find the medication name
+        if (id) {
+          const med = medsRes.data.find(m => m.medication_id === parseInt(id));
+          if (med) {
+            setActiveMedication(med.medication_name);
+          } else if (!activeMedication) {
+            setActiveMedication(uniqueNames.length > 0 ? uniqueNames[0] : "Unknown");
+          }
+        } else if (!activeMedication) {
+          // Fallback if no ID and no state name
+          if (uniqueNames.length > 0 && !uniqueNames.includes("Paracetamol")) {
+            setActiveMedication(uniqueNames[0]);
+          } else {
+            setActiveMedication("Paracetamol");
+          }
         }
+        
         setLoading(false);
       })
       .catch((err) => {
@@ -51,7 +65,7 @@ const MedicineDetails = ({ cartItems, cartCount, addToCart, onNavigateToCart }) 
         setError("Failed to load data from API.");
         setLoading(false);
       });
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (
@@ -130,7 +144,7 @@ const MedicineDetails = ({ cartItems, cartCount, addToCart, onNavigateToCart }) 
               borderRadius: "12px",
               cursor: "pointer",
             }}
-            onClick={onNavigateToCart}
+            onClick={() => navigate('/cart')}
           >
             <span className="d-flex text-primary">🛒</span>
             {cartCount > 0 && (
@@ -145,7 +159,7 @@ const MedicineDetails = ({ cartItems, cartCount, addToCart, onNavigateToCart }) 
           
           <button
             className="btn btn-sm btn-light rounded-circle shadow-sm border"
-            style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifycontent: "center" }}
+            style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center" }}
             onClick={() => setSearchMode(!searchMode)}
             title="Search other medications"
           >

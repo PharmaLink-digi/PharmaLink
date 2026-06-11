@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Home from "./Components/Home/Home";
 import Search from "./Components/Search/Search";
 import SignInForm from "./Components/SignInForm/SignInForm";
@@ -11,7 +11,12 @@ import './Components/Footer/Footer.css';
 import { useTranslation } from "react-i18next";
 import Settings from "./Components/Settings/Settings";
 import OrderDashboard from "./Components/OrderDashboard/OrderDashboard";
-import { Navigate } from "react-router-dom";
+import MedicineDetails from "./Components/MedicineDetails/MedicineDetails";
+import CartPage from "./Components/Cart/CartPage";
+import ConfirmOrderPage from "./Components/ConfirmOrder/ConfirmOrderPage";
+import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import MyOrders from "./Components/MyOrders/MyOrders";
 
 const ProtectedRoute = ({ children }) => {
   const userId = localStorage.getItem("userId");
@@ -34,6 +39,10 @@ let router = createBrowserRouter([
       { path: "/forgot-password", element: <ForgotPassword /> },
       { path: "/settings", element: <ProtectedRoute><Settings /></ProtectedRoute> },
       { path: "/order-dashboard", element: <ProtectedRoute><OrderDashboard /></ProtectedRoute> },
+      { path: "/medicine-details/:id", element: <MedicineDetails /> },
+      { path: "/cart", element: <CartPage /> },
+      { path: "/my-orders", element: <ProtectedRoute><MyOrders /></ProtectedRoute> },
+      { path: "/confirm-order", element: <ConfirmOrderPage /> },
       // { path: "*", element: <NotFound /> }
     ]
   }
@@ -49,9 +58,11 @@ function App() {
   }, [i18n.language]);
 
   return (
-    <>
-  <RouterProvider router={router}/>
-    </>
+    <AuthProvider>
+      <CartProvider>
+        <RouterProvider router={router}/>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

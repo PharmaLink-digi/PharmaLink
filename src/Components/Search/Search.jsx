@@ -254,35 +254,14 @@ export default function Search() {
                           <h5 className="fw-bold text-dark medicine-main-title mb-1">{med.name}</h5>
                           <p className="text-muted active-sub-title mb-2">{med.active}</p>
                           <span className="badge type-chip mb-3">{med.type}</span>
-                          <div className="d-flex align-items-center gap-1 rating-stars">
-                            {Array.from({ length: 5 }).map((_, idx) => {
-                              const isFilled = idx < Math.round(med.rating);
-                              return (
-                                <i
-                                  key={idx}
-                                  className={`bi ${isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'}`}
-                                ></i>
-                              );
-                            })}
-                            <span className="rating-score text-muted ms-2">{med.rating}</span>
-                          </div>
                         </div>
 
                         <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
-                          <div className="price-tag fw-bold text-dark fs-5">
-                            {med.price !== null && med.price !== undefined ? (
-                              <>
-                                <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
-                                {Number(med.price).toFixed(2)}
-                              </>
-                            ) : (
-                              <span className="text-muted fs-6">Not Available</span>
-                            )}
-                          </div>
-                          <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
+                          <div></div>
+                          <button onClick={() => navigate(`/medicine-details/${med.id}`)} className="btn btn-link text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium p-0 border-0">
                             {t('search.details')}
                             <i className="bi bi-chevron-left arrow-icon"></i>
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>

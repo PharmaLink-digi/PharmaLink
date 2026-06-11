@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../firebase.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const SignInForm = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [accountType, setAccountType] = useState(t('auth.patient'));
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -66,8 +68,7 @@ const SignInForm = () => {
       });
       const user = response.data.user || {};
       const userId = user.client_id || user.id || user.pharm_id || user.warehouse_id || response.data.userId;
-      if (userId) localStorage.setItem("userId", userId);
-      if (response.data.token) localStorage.setItem("token", response.data.token);
+      if (userId) login(userId, response.data.token);
 
       alert(t('auth.loginAlert', { type: accountType }) + " - Success");
       console.log(response.data);

@@ -4,15 +4,14 @@ import { Check } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import {
-  signInWithPopup,
-} from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-
 import { auth, provider } from "../../firebase.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function signInWithGoogle() {
 
@@ -91,9 +90,7 @@ const Signup = () => {
 
         const userData = Array.isArray(response.data) ? response.data[0] : response.data;
         const userId = userData?.client_id || userData?.id || userData?.pharm_id || userData?.warehouse_id;
-        
-        if (userId) localStorage.setItem("userId", userId);
-        if (userData?.token) localStorage.setItem("token", userData.token);
+        if (userId) login(userId, userData?.token);
 
         console.log(response.data);
 

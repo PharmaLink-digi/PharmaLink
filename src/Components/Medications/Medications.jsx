@@ -96,18 +96,6 @@ export default function Medications() {
 
               </p>
 
-              {/* STARS */}
-              <div className="rating">
-
-                <span>4.8</span>
-
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-                <i className="bi bi-star-fill"></i>
-
-              </div>
 
             </div>
 

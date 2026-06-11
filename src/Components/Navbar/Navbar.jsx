@@ -1,10 +1,15 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FaCapsules } from "react-icons/fa";
+import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
+  const { cartCount } = useCart();
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
 
   const navHover = (e) => {
     e.target.style.color = "#0d6efd";
@@ -26,6 +31,11 @@ const Navbar = () => {
     e.target.style.opacity = "1";
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <nav
       className="d-flex align-items-center justify-content-between px-5 mx-auto"
@@ -39,10 +49,7 @@ const Navbar = () => {
     >
       {/* Logo */}
       <Link to="/" className="text-decoration-none">
-        <div
-          className="d-flex align-items-center gap-2"
-          style={{ cursor: "pointer" }}
-        >
+        <div className="d-flex align-items-center gap-2" style={{ cursor: "pointer" }}>
           <div
             className="d-flex align-items-center justify-content-center"
             style={{
@@ -56,7 +63,6 @@ const Navbar = () => {
           >
             <FaCapsules />
           </div>
-
           <span
             className="fw-bold"
             style={{
@@ -78,122 +84,127 @@ const Navbar = () => {
             onMouseEnter={navHover}
             onMouseLeave={(e) => navLeave(e, true)}
             className="border-0 fw-semibold"
-            style={{
-              background: "#eef4ff",
-              color: "#0d6efd",
-              borderRadius: "14px",
-              padding: "9px 18px",
-              fontSize: "15px",
-              transition: "0.3s ease",
-            }}
+            style={{ background: "#eef4ff", color: "#0d6efd", borderRadius: "14px", padding: "9px 18px", fontSize: "15px", transition: "0.3s ease" }}
           >
             {t("navbar.home")}
           </button>
         </Link>
 
         <Link to="/search" className="text-decoration-none">
-          {["search", "dashboard", "orders", "notifications"].map((key) => (
+          <button
+            onMouseEnter={navHover}
+            onMouseLeave={navLeave}
+            className="border-0 fw-semibold"
+            style={{ background: "transparent", color: "#4b5563", borderRadius: "14px", padding: "9px 18px", fontSize: "15px", transition: "0.3s ease" }}
+          >
+            {t("navbar.search")}
+          </button>
+        </Link>
+
+        {isLoggedIn && (
+          <Link to="/my-orders" className="text-decoration-none">
             <button
-              key={key}
               onMouseEnter={navHover}
               onMouseLeave={navLeave}
               className="border-0 fw-semibold"
-              style={{
-                background: "transparent",
-                color: "#4b5563",
-                borderRadius: "14px",
-                padding: "9px 18px",
-                fontSize: "15px",
-                transition: "0.3s ease",
-              }}
+              style={{ background: "transparent", color: "#4b5563", borderRadius: "14px", padding: "9px 18px", fontSize: "15px", transition: "0.3s ease" }}
             >
-              {t(`navbar.${key}`)}
+              {t("navbar.myOrders") || "طلباتي"}
             </button>
-          ))}
-        </Link>
+          </Link>
+        )}
+
         <Link to="/order-dashboard" className="text-decoration-none">
           <button
             onMouseEnter={navHover}
             onMouseLeave={navLeave}
             className="border-0 fw-semibold"
-            style={{
-              background: "transparent",
-              color: "#4b5563",
-              borderRadius: "14px",
-              padding: "9px 18px",
-              fontSize: "15px",
-              transition: "0.3s ease",
-            }}
+            style={{ background: "transparent", color: "#4b5563", borderRadius: "14px", padding: "9px 18px", fontSize: "15px", transition: "0.3s ease" }}
           >
-            Order Dashboard
+            {t("navbar.dashboard")}
           </button>
         </Link>
       </div>
 
       {/* Actions */}
       <div className="d-flex align-items-center gap-2">
-        {/* Language toggle (logic from second) */}
+        {/* Cart */}
+        <Link to="/cart" className="text-decoration-none position-relative">
+          <button
+            onMouseEnter={buttonHover}
+            onMouseLeave={buttonLeave}
+            className="border"
+            style={{ width: "42px", height: "38px", borderRadius: "13px", background: "#fff", borderColor: "#dbe2ea", color: "#4b5563", fontSize: "16px", transition: "0.3s ease" }}
+          >
+            🛒
+          </button>
+          {cartCount > 0 && (
+            <span
+              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style={{ fontSize: "10px", zIndex: 1 }}
+            >
+              {cartCount}
+            </span>
+          )}
+        </Link>
+
+        {/* Language */}
         <button
-          onClick={() =>
-            i18n.changeLanguage(
-              i18n.language?.startsWith("en") ? "ar" : "en"
-            )
-          }
+          onClick={() => i18n.changeLanguage(i18n.language?.startsWith("en") ? "ar" : "en")}
           onMouseEnter={buttonHover}
           onMouseLeave={buttonLeave}
           className="border"
-          style={{
-            width: "42px",
-            height: "38px",
-            borderRadius: "13px",
-            background: "#fff",
-            borderColor: "#dbe2ea",
-            color: "#4b5563",
-            fontSize: "14px",
-            transition: "0.3s ease",
-          }}
+          style={{ width: "42px", height: "38px", borderRadius: "13px", background: "#fff", borderColor: "#dbe2ea", color: "#4b5563", fontSize: "14px", transition: "0.3s ease" }}
         >
           {i18n.language?.startsWith("en") ? "ع" : "EN"}
         </button>
 
-        <Link to="/signin">
-          <button
-            onMouseEnter={buttonHover}
-            onMouseLeave={buttonLeave}
-            className="border fw-semibold"
-            style={{
-              height: "38px",
-              padding: "0 20px",
-              borderRadius: "13px",
-              background: "#fff",
-              borderColor: "#dbe2ea",
-              color: "#374151",
-              fontSize: "15px",
-              transition: "0.3s ease",
-            }}
-          >
-            {t("navbar.login")}
-          </button>
-        </Link>
-
-        <Link to="/signup">
-          <button
-            onMouseEnter={buttonHover}
-            onMouseLeave={buttonLeave}
-            className="border-0 text-white fw-semibold"
-            style={{
-              height: "38px",
-              padding: "0 24px",
-              borderRadius: "13px",
-              background:
-                "linear-gradient(90deg, #0d6efd 0%, #10c8a0 100%)",
-              fontSize: "15px",
-              transition: "0.3s ease",
-            }}
-          >
-            {t("navbar.signup")}
-          </button>
-        </Link>
+        {isLoggedIn ? (
+          <>
+            <Link to="/settings">
+              <button
+                onMouseEnter={buttonHover}
+                onMouseLeave={buttonLeave}
+                className="border fw-semibold"
+                style={{ height: "38px", padding: "0 16px", borderRadius: "13px", background: "#fff", borderColor: "#dbe2ea", color: "#374151", fontSize: "15px", transition: "0.3s ease" }}
+              >
+                👤 {t("navbar.profile") || "حسابي"}
+              </button>
+            </Link>
+            <button
+              onClick={handleLogout}
+              onMouseEnter={buttonHover}
+              onMouseLeave={buttonLeave}
+              className="border-0 fw-semibold"
+              style={{ height: "38px", padding: "0 18px", borderRadius: "13px", background: "#fee2e2", color: "#dc2626", fontSize: "15px", transition: "0.3s ease" }}
+            >
+              {t("navbar.logout") || "خروج"}
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/signin">
+              <button
+                onMouseEnter={buttonHover}
+                onMouseLeave={buttonLeave}
+                className="border fw-semibold"
+                style={{ height: "38px", padding: "0 20px", borderRadius: "13px", background: "#fff", borderColor: "#dbe2ea", color: "#374151", fontSize: "15px", transition: "0.3s ease" }}
+              >
+                {t("navbar.login")}
+              </button>
+            </Link>
+            <Link to="/signup">
+              <button
+                onMouseEnter={buttonHover}
+                onMouseLeave={buttonLeave}
+                className="border-0 text-white fw-semibold"
+                style={{ height: "38px", padding: "0 24px", borderRadius: "13px", background: "linear-gradient(90deg, #0d6efd 0%, #10c8a0 100%)", fontSize: "15px", transition: "0.3s ease" }}
+              >
+                {t("navbar.signup")}
+              </button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

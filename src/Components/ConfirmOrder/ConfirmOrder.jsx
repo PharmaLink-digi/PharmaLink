@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { ArrowLeft, CheckCircleFill, CreditCard, Cash, ShieldCheck } from "react-bootstrap-icons";
+import { ArrowLeft, CheckCircleFill, CreditCard, Cash, ShieldCheck, FileEarmarkMedical } from "react-bootstrap-icons";
 
-const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack, onOrderPlaced }) => {
+const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack, onOrderPlaced, onPlaceOrder }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
+  const [paymobIframeUrl, setPaymobIframeUrl] = useState(null);
 
   const formatPrice = (price) => {
     return `${price.toFixed(0)} EGP`;
@@ -75,45 +77,32 @@ const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack
     } else if (!/^\d{10,15}$/.test(orderDetails.phone.trim())) {
       errors.phone = "Please enter a valid phone number (10-15 digits)";
     }
-
-    if (orderDetails.paymentMethod === "visa") {
-      const { cardholderName, cardNumber, expiryDate, cvv } = orderDetails.visaDetails;
-      if (!cardholderName.trim()) errors.visa_cardholderName = "Cardholder name is required";
-      if (!cardNumber.trim()) {
-        errors.visa_cardNumber = "Card number is required";
-      } else if (cardNumber.replace(/\s/g, "").length !== 16) {
-        errors.visa_cardNumber = "Card number must be 16 digits";
-      }
-      
-      if (!expiryDate.trim()) {
-        errors.visa_expiryDate = "Expiry date is required";
-      } else if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
-        errors.visa_expiryDate = "Format must be MM/YY";
-      }
-
-      if (!cvv.trim()) {
-        errors.visa_cvv = "CVV is required";
-      } else if (cvv.trim().length !== 3) {
-        errors.visa_cvv = "CVV must be 3 digits";
-      }
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
-    // Simulate API request
-    setTimeout(() => {
+    try {
+      const result = await onPlaceOrder({
+        ...orderDetails,
+        total,
+        prescription: prescriptionFile,
+      });
+
+      if (result?.paymobIframeUrl) {
+        setPaymobIframeUrl(result.paymobIframeUrl);
+      } else {
+        setShowSuccess(true);
+      }
+    } catch (err) {
+      alert("فشل في تقديم الطلب: " + (err.message || "حاول مرة أخرى"));
+    } finally {
       setIsSubmitting(false);
-      setShowSuccess(true);
-    }, 1200);
+    }
   };
 
   return (
@@ -238,117 +227,72 @@ const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack
                 </div>
               </div>
 
-              {/* Visa Payment Card */}
+              {/* Paymob Online Payment Card */}
               <div className="col-md-6">
                 <div
-                  className="card rounded-3 p-3 text-start transition-all cursor-pointer h-100 position-relative"
+                  className="card rounded-3 p-3 text-start h-100 position-relative"
                   style={{
-                    border: orderDetails.paymentMethod === "visa" ? "2px solid #00b289" : "1.5px solid #e5e4e7",
-                    backgroundColor: orderDetails.paymentMethod === "visa" ? "#f0fdf4" : "#ffffff",
+                    border: orderDetails.paymentMethod === "paymob" ? "2px solid #00b289" : "1.5px solid #e5e4e7",
+                    backgroundColor: orderDetails.paymentMethod === "paymob" ? "#f0fdf4" : "#ffffff",
                     cursor: "pointer"
                   }}
-                  onClick={() => handleInputChange("paymentMethod", "visa")}
+                  onClick={() => handleInputChange("paymentMethod", "paymob")}
                 >
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="d-flex align-items-center">
                       <div className="rounded-circle p-2 bg-light text-secondary d-flex align-items-center justify-content-center me-3">
-                        <CreditCard size={20} className={orderDetails.paymentMethod === "visa" ? "text-success" : ""} />
+                        <CreditCard size={20} className={orderDetails.paymentMethod === "paymob" ? "text-success" : ""} />
                       </div>
                       <div>
-                        <div className="fw-bold text-dark" style={{ fontSize: "15px" }}>الدفع بالفيزا</div>
-                        <small className="text-secondary" style={{ fontSize: "12px" }}>ادفع إلكترونياً ببطاقة الائتمان</small>
+                        <div className="fw-bold text-dark" style={{ fontSize: "15px" }}>الدفع أونلاين</div>
+                        <small className="text-secondary" style={{ fontSize: "12px" }}>Visa / Mastercard عبر Paymob</small>
                       </div>
                     </div>
-                    {orderDetails.paymentMethod === "visa" && (
-                      <span className="badge rounded-circle p-1 bg-success d-flex align-items-center justify-content-center" style={{ width: "20px", height: "20px" }}>
-                        ✓
-                      </span>
+                    {orderDetails.paymentMethod === "paymob" && (
+                      <span className="badge rounded-circle p-1 bg-success d-flex align-items-center justify-content-center" style={{ width: "20px", height: "20px" }}>✓</span>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Visa Form Fields - Expandable */}
-            {orderDetails.paymentMethod === "visa" && (
-              <div className="mt-4 p-4 rounded-3 border bg-light-subtle transition-all card-fields-animation" style={{ borderStyle: "dashed", borderColor: "#00b289" }}>
-                <h6 className="fw-bold text-dark mb-3">Card Details</h6>
-                
-                {/* Cardholder Name */}
-                <div className="mb-3">
-                  <label className="form-label text-secondary fw-semibold" style={{ fontSize: "13px" }}>Cardholder Name</label>
-                  <input
-                    type="text"
-                    className={`form-control rounded-3 p-2 bg-white ${formErrors.visa_cardholderName ? "is-invalid" : ""}`}
-                    placeholder="e.g. John Doe"
-                    style={{ fontSize: "14px" }}
-                    value={orderDetails.visaDetails.cardholderName}
-                    onChange={(e) => handleVisaChange("cardholderName", e.target.value)}
-                  />
-                  {formErrors.visa_cardholderName && <div className="invalid-feedback">{formErrors.visa_cardholderName}</div>}
-                </div>
-
-                {/* Card Number */}
-                <div className="mb-3">
-                  <label className="form-label text-secondary fw-semibold" style={{ fontSize: "13px" }}>Card Number</label>
-                  <div className="position-relative">
-                    <input
-                      type="text"
-                      className={`form-control rounded-3 p-2 bg-white ${formErrors.visa_cardNumber ? "is-invalid" : ""}`}
-                      placeholder="XXXX XXXX XXXX XXXX"
-                      maxLength="19"
-                      style={{ fontSize: "14px", paddingRight: "40px" }}
-                      value={orderDetails.visaDetails.cardNumber}
-                      onChange={(e) => handleVisaChange("cardNumber", formatCardNumber(e.target.value))}
-                    />
-                    <span className="position-absolute end-0 top-50 translate-middle-y me-3 text-secondary">
-                      <CreditCard size={18} />
-                    </span>
-                  </div>
-                  {formErrors.visa_cardNumber && <div className="invalid-feedback">{formErrors.visa_cardNumber}</div>}
-                </div>
-
-                <div className="row">
-                  {/* Expiry Date */}
-                  <div className="col-6">
-                    <div className="mb-3">
-                      <label className="form-label text-secondary fw-semibold" style={{ fontSize: "13px" }}>Expiry Date</label>
-                      <input
-                        type="text"
-                        className={`form-control rounded-3 p-2 bg-white ${formErrors.visa_expiryDate ? "is-invalid" : ""}`}
-                        placeholder="MM/YY"
-                        maxLength="5"
-                        style={{ fontSize: "14px" }}
-                        value={orderDetails.visaDetails.expiryDate}
-                        onChange={(e) => handleVisaChange("expiryDate", formatExpiryDate(e.target.value))}
-                      />
-                      {formErrors.visa_expiryDate && <div className="invalid-feedback">{formErrors.visa_expiryDate}</div>}
-                    </div>
-                  </div>
-
-                  {/* CVV */}
-                  <div className="col-6">
-                    <div className="mb-3">
-                      <label className="form-label text-secondary fw-semibold" style={{ fontSize: "13px" }}>CVV</label>
-                      <input
-                        type="password"
-                        className={`form-control rounded-3 p-2 bg-white ${formErrors.visa_cvv ? "is-invalid" : ""}`}
-                        placeholder="***"
-                        maxLength="3"
-                        style={{ fontSize: "14px" }}
-                        value={orderDetails.visaDetails.cvv}
-                        onChange={(e) => handleVisaChange("cvv", e.target.value.replace(/[^0-9]/g, ""))}
-                      />
-                      {formErrors.visa_cvv && <div className="invalid-feedback">{formErrors.visa_cvv}</div>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="d-flex align-items-center text-muted mt-2" style={{ fontSize: "12px" }}>
-                  <ShieldCheck size={16} className="text-success me-2" />
-                  <span>معاملاتك محمية وبياناتك آمنة معنا.</span>
-                </div>
+            {orderDetails.paymentMethod === "paymob" && (
+              <div className="mt-3 d-flex align-items-center text-muted rounded-3 p-3 bg-light" style={{ fontSize: "13px" }}>
+                <ShieldCheck size={16} className="text-success me-2 flex-shrink-0" />
+                <span>ستنتقل إلى صفحة الدفع الآمنة (Paymob) بعد تأكيد الطلب.</span>
               </div>
+            )}
+          </div>
+
+          {/* Prescription Upload */}
+          <div className="pt-3 border-top" style={{ borderColor: "#f1f5f9" }}>
+            <div className="d-flex align-items-center gap-2 mb-2">
+              <FileEarmarkMedical size={18} className="text-primary" />
+              <h5 className="fw-bold text-dark mb-0" style={{ fontSize: "16px" }}>الروشيتة الطبية (اختياري)</h5>
+            </div>
+            <p className="text-secondary mb-3" style={{ fontSize: "13px" }}>
+              إذا كان الدواء يستلزم روشيتة طبية، يرجى إرفاقها هنا قبل تقديم الطلب.
+            </p>
+            <label
+              className="d-flex align-items-center justify-content-center gap-2 rounded-3 p-3 border text-center"
+              style={{ borderStyle: "dashed", borderColor: prescriptionFile ? "#00b289" : "#d1d5db", backgroundColor: prescriptionFile ? "#f0fdf4" : "#fafbfc", cursor: "pointer", fontSize: "14px" }}
+            >
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                className="d-none"
+                onChange={(e) => setPrescriptionFile(e.target.files[0] || null)}
+              />
+              {prescriptionFile ? (
+                <span className="text-success fw-semibold">✓ {prescriptionFile.name}</span>
+              ) : (
+                <span className="text-secondary">اضغط لرفع صورة الروشيتة (JPG / PNG / PDF)</span>
+              )}
+            </label>
+            {prescriptionFile && (
+              <button type="button" className="btn btn-link btn-sm text-danger p-0 mt-1" onClick={() => setPrescriptionFile(null)}>
+                إزالة الروشيتة
+              </button>
             )}
           </div>
 
@@ -482,6 +426,32 @@ const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack
           to { transform: scale(1.05); }
         }
       `}</style>
+
+      {/* Paymob iframe overlay */}
+      {paymobIframeUrl && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: "rgba(8,6,13,0.7)", zIndex: 1060 }}
+        >
+          <div className="card border-0 rounded-4 shadow-lg bg-white mx-3 overflow-hidden" style={{ width: "100%", maxWidth: "520px", height: "600px" }}>
+            <div className="d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+              <span className="fw-bold text-dark" style={{ fontSize: "16px" }}>إتمام الدفع</span>
+              <button
+                className="btn btn-link p-0 text-secondary"
+                onClick={() => { setPaymobIframeUrl(null); onOrderPlaced(); }}
+                style={{ fontSize: "20px", textDecoration: "none" }}
+              >
+                ✕
+              </button>
+            </div>
+            <iframe
+              src={paymobIframeUrl}
+              title="Paymob Payment"
+              style={{ width: "100%", height: "100%", border: "none" }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
