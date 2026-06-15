@@ -13,9 +13,12 @@ export function CartProvider({ children }) {
   });
 
   const addToCart = (medicationName, pharmacyInfo, inventoryRecord) => {
+    const stockQty = Number(inventoryRecord.quantity) || 1;
     setCartItems(prev => {
       const existing = prev.find(item => item.inventory_id === inventoryRecord.inventory_id);
       if (existing) {
+        // Cap cart quantity at available stock
+        if (existing.quantity >= existing.stock_quantity) return prev;
         return prev.map(item =>
           item.inventory_id === inventoryRecord.inventory_id
             ? { ...item, quantity: item.quantity + 1 }
@@ -29,7 +32,8 @@ export function CartProvider({ children }) {
           medication_name: medicationName,
           pharmacy_name: pharmacyInfo?.pharm_name || '',
           pharmacy_area: pharmacyInfo?.area || '',
-          quantity: 1,
+          stock_quantity: stockQty, // preserve original stock for cap checks
+          quantity: 1,              // cart quantity starts at 1
         },
       ];
     });
@@ -38,11 +42,12 @@ export function CartProvider({ children }) {
   const updateCartQuantity = (inventoryId, delta) => {
     setCartItems(prev =>
       prev
-        .map(item =>
-          item.inventory_id === inventoryId
-            ? { ...item, quantity: item.quantity + delta }
-            : item
-        )
+        .map(item => {
+          if (item.inventory_id !== inventoryId) return item;
+          const newQty = item.quantity + delta;
+          const capped = Math.min(newQty, item.stock_quantity ?? 999);
+          return { ...item, quantity: capped };
+        })
         .filter(item => item.quantity > 0)
     );
   };

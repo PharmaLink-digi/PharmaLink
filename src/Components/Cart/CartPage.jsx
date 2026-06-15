@@ -13,7 +13,8 @@ export default function CartPage() {
       updateCartQuantity={updateCartQuantity}
       removeFromCart={removeFromCart}
       onNavigateBack={() => navigate(-1)}
-      onCheckout={() => navigate('/confirm-order')}
+      onBrowse={() => navigate('/client/search')}
+      onCheckout={() => navigate('/client/confirm-order')}
     />
   );
 }

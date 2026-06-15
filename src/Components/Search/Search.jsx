@@ -23,6 +23,7 @@ export default function Search() {
   const { t } = useTranslation();
   const [medicines, setMedicines] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +101,38 @@ export default function Search() {
     }
   };
 
+  const startVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = document.documentElement.lang === 'ar' ? 'ar-EG' : 'en-US';
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchTerm(transcript);
+      fetchMedicines(transcript.trim());
+    };
+    
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognition.start();
+  };
+
   const allTypes = useMemo(
     () => Array.from(new Set(medicines.map((item) => item.type))),
     [medicines]
@@ -156,13 +189,21 @@ export default function Search() {
             <div className="position-relative search-input-wrapper">
               <input
                 type="text"
-                className="form-control search-field py-3 pe-4 ps-5"
-                placeholder={t('search.placeholder')}
+                className="form-control search-field py-3 pe-5 ps-5"
+                placeholder={t('search.placeholder') || "Search for medication..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
-              <i className="bi bi-search search-field-icon position-absolute"></i>
+              <i className="bi bi-search search-field-icon position-absolute" style={{ right: '1rem', top: '50%', transform: 'translateY(-50%)' }}></i>
+              <button 
+                className={`btn position-absolute border-0 ${isListening ? 'voice-pulse text-danger' : 'text-secondary'}`} 
+                style={{ left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                onClick={startVoiceSearch}
+                title="Voice Search"
+              >
+                <i className={`bi ${isListening ? 'bi-mic-fill' : 'bi-mic'} fs-5`}></i>
+              </button>
             </div>
           </div>
           <div className="col-6 col-md-2 col-lg-2">
@@ -258,7 +299,7 @@ export default function Search() {
 
                         <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
                           <div></div>
-                          <button onClick={() => navigate(`/medicine-details/${med.id}`)} className="btn btn-link text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium p-0 border-0">
+                          <button onClick={() => navigate(`/client/medicine/${med.id}`)} className="btn btn-link text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium p-0 border-0">
                             {t('search.details')}
                             <i className="bi bi-chevron-left arrow-icon"></i>
                           </button>

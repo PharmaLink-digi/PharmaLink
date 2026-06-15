@@ -1,7 +1,7 @@
 import React from "react";
 import { Trash, Plus, Dash, ArrowLeft, Capsule } from "react-bootstrap-icons";
 
-const Cart = ({ cartItems, updateCartQuantity, removeFromCart, onNavigateBack, onCheckout }) => {
+const Cart = ({ cartItems, updateCartQuantity, removeFromCart, onNavigateBack, onBrowse, onCheckout }) => {
   // Helper to format price
   const formatPrice = (price) => {
     return `${price.toFixed(0)} EGP`;
@@ -23,7 +23,7 @@ const Cart = ({ cartItems, updateCartQuantity, removeFromCart, onNavigateBack, o
           style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", fontSize: "14px" }}
           className="text-secondary hover-link text-decoration-none transition-all fw-semibold"
         >
-          <ArrowLeft size={16} className="me-2" /> Back to Medication
+          <ArrowLeft size={16} className="me-2" /> Back to Orders
         </span>
       </div>
 
@@ -43,7 +43,7 @@ const Cart = ({ cartItems, updateCartQuantity, removeFromCart, onNavigateBack, o
               border: "none",
               fontWeight: "600"
             }}
-            onClick={onNavigateBack}
+            onClick={onBrowse || onNavigateBack}
           >
             Browse Medications
           </button>

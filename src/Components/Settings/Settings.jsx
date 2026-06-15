@@ -1,76 +1,147 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiGlobe, FiBell, FiLogOut } from 'react-icons/fi'
+import { FiGlobe, FiBell, FiLogOut, FiAlertCircle } from 'react-icons/fi'
 import { useTranslation } from "react-i18next"
+import { useAuth } from '../../context/AuthContext'
+import api from '../../utils/api'
 import './Settings.css'
+
+// Attempt a direct /:id GET and return the first usable record.
+// Returns the raw data object/array on success, null on 404, re-throws on other errors.
+async function tryDirect(path, userId) {
+  try {
+    const { data } = await api.get(`${path}/${userId}`);
+    if (!data || (Array.isArray(data) && data.length === 0)) return null;
+    return Array.isArray(data) ? data[0] : data;
+  } catch (err) {
+    if (err.response?.status === 404) return null;
+    throw err; // 401, 500, network — let caller decide
+  }
+}
+
+// Normalize to { name, email, phone, area }
+// email/area are both optional depending on role
+function normalizePharm(r) {
+  if (!r?.pharm_name) return null;
+  return { name: r.pharm_name, email: null, phone: r.phone || null, area: r.area || null };
+}
+function normalizeWarehouse(r) {
+  if (!r?.warehouse_code) return null;
+  return { name: r.warehouse_code, email: null, phone: r.phone || null, area: r.area || null };
+}
+function normalizeClient(r) {
+  if (!r?.client_name) return null;
+  return { name: r.client_name, email: r.email || null, phone: r.phone || null, area: null };
+}
+
+// Fetch only this user's record, scoped by role.
+// Strategy: try the most-specific endpoint first, fall back to filtered list.
+// Returns a normalized { name, email, phone } object, or null if not found.
+async function fetchOwnProfile(role, userId) {
+  if (role === 'pharmacy') {
+    try {
+      const direct = await tryDirect('/pharm-info', userId);
+      if (direct) {
+        const normalized = normalizePharm(direct);
+        if (normalized) return normalized;
+      }
+    } catch (_) { /* direct endpoint failed — fall through to list */ }
+    const { data } = await api.get('/pharm-info');
+    const list = Array.isArray(data) ? data : (data?.data ?? []);
+    const match = list.find((p) => String(p.pharm_id) === String(userId));
+    return normalizePharm(match);
+  }
+
+  if (role === 'warehouse') {
+    // GET /warehouses/:id doesn't work on this backend — go straight to list
+    const { data } = await api.get('/warehouses');
+    const list = Array.isArray(data) ? data : (data?.data ?? []);
+    const match = list.find((w) => String(w.warehouse_id) === String(userId));
+    return normalizeWarehouse(match);
+  }
+
+  // client — GET /clients/:id exists and returns the record directly
+  const direct = await tryDirect('/clients', userId);
+  if (direct) return normalizeClient(direct);
+  return null;
+}
 
 function Settings() {
   const { t, i18n } = useTranslation();
   const lang = i18n.language?.startsWith('ar') ? 'ar' : 'en';
+  const { userId, role, logout: contextLogout } = useAuth();
+  const navigate = useNavigate();
 
   const [toggles, setToggles] = useState({
     orderUpdates: true,
     deliveryAlerts: true,
     stockAlerts: false,
     medicationReminders: true,
-  })
-  const [userData, setUserData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+  });
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
 
+  // Sync language direction on mount
   useEffect(() => {
-    const savedLang = localStorage.getItem('lang')
-    if (savedLang) {
-      if (i18n.language !== savedLang) {
-        i18n.changeLanguage(savedLang)
-      }
-      document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr'
-      document.documentElement.lang = savedLang
+    const savedLang = localStorage.getItem('lang');
+    if (savedLang && i18n.language !== savedLang) {
+      i18n.changeLanguage(savedLang);
     }
-  }, [i18n])
+    const activeLang = savedLang || i18n.language || 'en';
+    document.documentElement.dir = activeLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = activeLang;
+  }, [i18n]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const currentUserId = localStorage.getItem("userId");
-      if (!currentUserId) return;
-      
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://pharmalink-back-end.onrender.com'}/clients`)
-        const data = await response.json()
-        const user = data.find((u) => String(u.client_id) === String(currentUserId))
-        if (user) {
-          setUserData({
-            id: user.client_id,
-            name: user.client_name,
-            email: user.email,
-            phone: user.phone
-          })
+    // Guard: must be authenticated
+    if (!userId) {
+      navigate('/signin', { replace: true });
+      return;
+    }
+    // Guard: must have a known role
+    if (!role) {
+      navigate('/account-type', { replace: true });
+      return;
+    }
+
+    setLoading(true);
+    setProfileError(null);
+
+    fetchOwnProfile(role, userId)
+      .then((profile) => {
+        if (profile) {
+          setUserData(profile);
+        } else {
+          setProfileError(t('settings.profileNotFound', 'Profile not found.'));
         }
-      } catch (error) {
-        console.error('Error fetching user:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchUser()
-  }, [])
+      })
+      .catch((err) => {
+        // 401 is handled globally by api.js interceptor (redirects to /signin)
+        if (err.response?.status !== 401) {
+          setProfileError(t('settings.profileError', 'Could not load profile. Please try again.'));
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [userId, role]);
 
   const handleLanguageChange = (newLang) => {
     i18n.changeLanguage(newLang);
-    localStorage.setItem("lang", newLang);
+    localStorage.setItem('lang', newLang);
     document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = newLang;
-  }
+  };
 
   const handleToggle = (key) => {
-    setToggles((prev) => ({ ...prev, [key]: !prev[key] }))
-  }
+    setToggles((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userId')
-    navigate('/login')
-  }
+    contextLogout();
+    navigate('/signin');
+  };
+
+  const avatarLetter = userData?.name?.[0]?.toUpperCase() ?? role?.[0]?.toUpperCase() ?? 'U';
 
   return (
     <div className="settings-page" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -82,31 +153,54 @@ function Settings() {
           </div>
         </div>
 
+        {/* Profile Card */}
         <div className="card profile-card">
           <div className="card-header">
             <span>{t('settings.profileLabel')}</span>
           </div>
           <div className="card-body profile-body">
             {loading ? (
-              <div>{t('settings.loading', 'Loading...')}</div>
+              <div className="d-flex align-items-center gap-2">
+                <div className="spinner-border spinner-border-sm text-primary" role="status" />
+                <span>{t('settings.loading', 'Loading profile...')}</span>
+              </div>
+            ) : profileError ? (
+              <div className="d-flex align-items-center gap-2 text-danger">
+                <FiAlertCircle size={18} />
+                <span>{profileError}</span>
+              </div>
             ) : (
               <>
-                <div className="profile-avatar">{userData?.name?.[0]?.toUpperCase() || 'U'}</div>
+                <div className="profile-avatar">{avatarLetter}</div>
                 <div className="profile-details">
-                  <div className="profile-name">{userData?.name || t('settings.name')}</div>
-                  <div className="profile-email">{userData?.email || t('settings.email')}</div>
-                  {userData?.phone && <div className="profile-email">{userData.phone}</div>}
+                  <div className="profile-name">
+                    {userData?.name || t('settings.name', 'Name not available')}
+                  </div>
+                  {userData?.email && (
+                    <div className="profile-email">{userData.email}</div>
+                  )}
+                  {userData?.phone && (
+                    <div className="profile-email">{userData.phone}</div>
+                  )}
+                  {userData?.area && (
+                    <div className="profile-email">
+                      <span style={{ opacity: 0.6, fontSize: '12px' }}>📍 </span>
+                      {userData.area}
+                    </div>
+                  )}
+                  <div className="profile-email" style={{ opacity: 0.5, fontSize: '12px', textTransform: 'capitalize' }}>
+                    {role}
+                  </div>
                 </div>
               </>
             )}
           </div>
         </div>
 
+        {/* Language Card */}
         <div className="card language-card">
           <div className="card-header">
-            <div className="header-icon">
-              <FiGlobe size={18} />
-            </div>
+            <div className="header-icon"><FiGlobe size={18} /></div>
             <span>{t('settings.languageLabel')}</span>
           </div>
           <div className="card-body language-body">
@@ -138,58 +232,31 @@ function Settings() {
           </div>
         </div>
 
+        {/* Notifications Card */}
         <div className="card notify-card">
           <div className="card-header">
-            <div className="header-icon">
-              <FiBell size={18} />
-            </div>
+            <div className="header-icon"><FiBell size={18} /></div>
             <span>{t('settings.notificationsLabel')}</span>
           </div>
           <div className="card-body notification-body">
-            <div className="notif-item">
-              <span>{t('settings.orderUpdates')}</span>
-              <button
-                type="button"
-                className={`switch ${toggles.orderUpdates ? 'on' : ''}`}
-                onClick={() => handleToggle('orderUpdates')}
-                aria-pressed={toggles.orderUpdates}
-              >
-                <span className="switch-thumb" />
-              </button>
-            </div>
-            <div className="notif-item">
-              <span>{t('settings.deliveryAlerts')}</span>
-              <button
-                type="button"
-                className={`switch ${toggles.deliveryAlerts ? 'on' : ''}`}
-                onClick={() => handleToggle('deliveryAlerts')}
-                aria-pressed={toggles.deliveryAlerts}
-              >
-                <span className="switch-thumb" />
-              </button>
-            </div>
-            <div className="notif-item">
-              <span>{t('settings.stockAlerts')}</span>
-              <button
-                type="button"
-                className={`switch ${toggles.stockAlerts ? 'on' : ''}`}
-                onClick={() => handleToggle('stockAlerts')}
-                aria-pressed={toggles.stockAlerts}
-              >
-                <span className="switch-thumb" />
-              </button>
-            </div>
-            <div className="notif-item">
-              <span>{t('settings.medicationReminders')}</span>
-              <button
-                type="button"
-                className={`switch ${toggles.medicationReminders ? 'on' : ''}`}
-                onClick={() => handleToggle('medicationReminders')}
-                aria-pressed={toggles.medicationReminders}
-              >
-                <span className="switch-thumb" />
-              </button>
-            </div>
+            {[
+              { key: 'orderUpdates',        label: t('settings.orderUpdates') },
+              { key: 'deliveryAlerts',      label: t('settings.deliveryAlerts') },
+              { key: 'stockAlerts',         label: t('settings.stockAlerts') },
+              { key: 'medicationReminders', label: t('settings.medicationReminders') },
+            ].map(({ key, label }) => (
+              <div key={key} className="notif-item">
+                <span>{label}</span>
+                <button
+                  type="button"
+                  className={`switch ${toggles[key] ? 'on' : ''}`}
+                  onClick={() => handleToggle(key)}
+                  aria-pressed={toggles[key]}
+                >
+                  <span className="switch-thumb" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -199,7 +266,7 @@ function Settings() {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default Settings
+export default Settings;

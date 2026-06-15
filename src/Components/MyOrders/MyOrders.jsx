@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import api from '../../utils/api';
 import './MyOrders.css';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-const STATUS_CONFIG = {
-  pending:   { label: 'قيد الانتظار',   color: '#f59e0b', bg: '#fef3c7', step: 1 },
-  Pending:   { label: 'قيد الانتظار',   color: '#f59e0b', bg: '#fef3c7', step: 1 },
-  processing:{ label: 'جاري التنفيذ',  color: '#3b82f6', bg: '#dbeafe', step: 2 },
-  shipped:   { label: 'في الطريق',      color: '#8b5cf6', bg: '#ede9fe', step: 3 },
-  Completed: { label: 'تم التسليم',     color: '#16a34a', bg: '#dcfce7', step: 4 },
-  completed: { label: 'تم التسليم',     color: '#16a34a', bg: '#dcfce7', step: 4 },
-  Cancelled: { label: 'ملغي',           color: '#dc2626', bg: '#fee2e2', step: 0 },
-  cancelled: { label: 'ملغي',           color: '#dc2626', bg: '#fee2e2', step: 0 },
+const STATUS_META = {
+  pending:    { tKey: 'dashboard.order_pending',    color: '#f59e0b', bg: '#fef3c7', step: 1 },
+  Pending:    { tKey: 'dashboard.order_pending',    color: '#f59e0b', bg: '#fef3c7', step: 1 },
+  processing: { tKey: 'dashboard.order_processing', color: '#3b82f6', bg: '#dbeafe', step: 2 },
+  shipped:    { tKey: 'dashboard.order_transit',    color: '#8b5cf6', bg: '#ede9fe', step: 3 },
+  Completed:  { tKey: 'dashboard.order_delivered',  color: '#16a34a', bg: '#dcfce7', step: 4 },
+  completed:  { tKey: 'dashboard.order_delivered',  color: '#16a34a', bg: '#dcfce7', step: 4 },
+  Cancelled:  { tKey: 'dashboard.order_cancelled',  color: '#dc2626', bg: '#fee2e2', step: 0 },
+  cancelled:  { tKey: 'dashboard.order_cancelled',  color: '#dc2626', bg: '#fee2e2', step: 0 },
 };
 
-const STEPS = ['تم الطلب', 'جاري التنفيذ', 'في الطريق', 'تم التسليم'];
+const STEP_KEYS = ['tracking.order_placed', 'tracking.processing', 'tracking.dispatched', 'tracking.delivered'];
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
@@ -23,24 +23,35 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith('ar');
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
-    if (!userId) { navigate('/signin'); return; }
+    if (!userId) { navigate('/signin', { replace: true }); return; }
 
     Promise.all([
-      fetch(`${API_BASE}/orders?client_id=${userId}`).then((r) => r.json()),
-      fetch(`${API_BASE}/order-details?client_id=${userId}`).then((r) => r.json()),
+      api.get(`/orders?client_id=eq.${userId}&order=order_id.desc`, { headers: { 'Cache-Control': 'no-cache' } }).then((r) => r.data),
+      api.get('/order-details', { headers: { 'Cache-Control': 'no-cache' } }).then((r) => r.data),
     ])
       .then(([ordersData, detailsData]) => {
-        const ordersArr = Array.isArray(ordersData) ? ordersData : [];
-        const detailsArr = Array.isArray(detailsData) ? detailsData : [];
-        // Sort newest first
-        ordersArr.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
-        setOrders(ordersArr);
-        setDetails(detailsArr);
+        const allOrders  = Array.isArray(ordersData)  ? ordersData  : [];
+        const allDetails = Array.isArray(detailsData) ? detailsData : [];
+
+        // Backend ignores query params — filter client-side.
+        // Orders table has both client_id (who placed it) and pharm_id (fulfilling pharmacy).
+        const myOrders  = allOrders.filter(
+          (o) => String(o.client_id) === String(userId)
+        );
+        const myDetails = allDetails.filter(
+          (d) => myOrders.some((o) => o.order_id === d.order_id)
+        );
+
+        myOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+        setOrders(myOrders);
+        setDetails(myDetails);
       })
-      .catch(() => setError('فشل في تحميل الطلبات'))
+      .catch(() => setError(t('orders.loadError', 'Failed to load orders')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -54,7 +65,7 @@ export default function MyOrders() {
     return (
       <div className="container py-5 text-center" style={{ minHeight: '60vh' }}>
         <div className="spinner-border text-primary" role="status" />
-        <p className="mt-3 text-secondary">جاري تحميل طلباتك...</p>
+        <p className="mt-3 text-secondary">{t('common.loading')}</p>
       </div>
     );
   }
@@ -68,32 +79,33 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="container py-5" style={{ maxWidth: '780px' }} dir="rtl">
+    <div className="container py-5" style={{ maxWidth: '780px' }} dir={isAr ? 'rtl' : 'ltr'}>
       <div className="mb-4">
-        <h1 className="fw-bold text-dark mb-1" style={{ fontSize: '28px' }}>طلباتي</h1>
+        <h1 className="fw-bold text-dark mb-1" style={{ fontSize: '28px' }}>{t('orders.title')}</h1>
         <p className="text-secondary" style={{ fontSize: '15px' }}>
-          {orders.length > 0 ? `${orders.length} طلب` : 'لا توجد طلبات بعد'}
+          {orders.length > 0 ? `${orders.length} ${t('orders.items')}` : t('orders.empty')}
         </p>
       </div>
 
       {orders.length === 0 ? (
         <div className="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
           <div style={{ fontSize: '50px' }}>📦</div>
-          <h5 className="fw-bold text-dark mt-3 mb-2">لا توجد طلبات</h5>
-          <p className="text-secondary mb-4">ابحث عن الأدوية وابدأ طلبك الأول</p>
+          <h5 className="fw-bold text-dark mt-3 mb-2">{t('orders.empty')}</h5>
+          <p className="text-secondary mb-4">{t('orders.empty_sub')}</p>
           <button
             className="btn text-white rounded-pill px-4 py-2 mx-auto"
-            style={{ background: 'linear-gradient(90deg,#0d6efd,#10c8a0)', border: 'none', fontWeight: 600, maxWidth: '200px' }}
-            onClick={() => navigate('/search')}
+            style={{ background: 'linear-gradient(90deg,#0d6efd,#10c8a0)', border: 'none', fontWeight: 600, maxWidth: '220px' }}
+            onClick={() => navigate('/client/search')}
           >
-            ابحث عن دواء
+            {t('navbar.search')}
           </button>
         </div>
       ) : (
         <div className="d-flex flex-column gap-4">
           {orders.map((order) => {
             const statusKey = order.status || 'pending';
-            const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.pending;
+            const meta = STATUS_META[statusKey] || STATUS_META.pending;
+            const statusCfg = { ...meta, label: t(meta.tKey) };
             const items = getOrderItems(order.order_id);
             const total = getOrderTotal(order.order_id);
             const isCancelled = statusCfg.step === 0;
@@ -108,10 +120,14 @@ export default function MyOrders() {
                 <div className="d-flex justify-content-between align-items-start p-4 pb-3">
                   <div>
                     <div className="fw-bold text-dark" style={{ fontSize: '16px' }}>
-                      طلب #{order.order_id}
+                      {t('orders.order_label', 'Order')} #{order.order_id}
                     </div>
                     <div className="text-secondary mt-1" style={{ fontSize: '13px' }}>
-                      {order.order_date ? new Date(order.order_date).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
+                      {order.order_date
+                        ? new Date(order.order_date).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                          })
+                        : '—'}
                     </div>
                   </div>
                   <span
@@ -126,11 +142,12 @@ export default function MyOrders() {
                 {!isCancelled && (
                   <div className="px-4 pb-3">
                     <div className="d-flex align-items-center">
-                      {STEPS.map((step, i) => {
+                      {STEP_KEYS.map((stepKey, i) => {
+                        const step = t(stepKey);
                         const done = statusCfg.step > i;
                         const active = statusCfg.step === i + 1;
                         return (
-                          <React.Fragment key={step}>
+                          <React.Fragment key={stepKey}>
                             <div className="d-flex flex-column align-items-center" style={{ flex: '0 0 auto' }}>
                               <div
                                 className="d-flex align-items-center justify-content-center rounded-circle"
@@ -146,7 +163,7 @@ export default function MyOrders() {
                                 {step}
                               </span>
                             </div>
-                            {i < STEPS.length - 1 && (
+                            {i < STEP_KEYS.length - 1 && (
                               <div
                                 style={{ flex: 1, height: '2px', background: done ? '#0d6efd' : '#e2e8f0', margin: '0 4px', marginBottom: '18px' }}
                               />
@@ -173,10 +190,10 @@ export default function MyOrders() {
                             </div>
                             <div>
                               <div className="fw-semibold text-dark" style={{ fontSize: '14px' }}>
-                                {item.medication?.medication_name || item.medication_name || `دواء #${item.medication_id}`}
+                                {item.medication?.medication_name || item.medication_name || `${t('orders.medicine', 'Medicine')} #${item.medication_id}`}
                               </div>
                               <div className="text-secondary" style={{ fontSize: '12px' }}>
-                                الكمية: {item.quantity}
+                                {t('orders.quantity', 'Qty')}: {item.quantity}
                                 {item.pharmacy?.pharm_name ? ` • ${item.pharmacy.pharm_name}` : ''}
                               </div>
                             </div>
@@ -195,7 +212,7 @@ export default function MyOrders() {
                   className="px-4 py-3 d-flex justify-content-between align-items-center rounded-bottom-4"
                   style={{ background: '#f8fafc', borderTop: '1px solid #f1f5f9' }}
                 >
-                  <span className="text-secondary" style={{ fontSize: '13px' }}>الإجمالي</span>
+                  <span className="text-secondary" style={{ fontSize: '13px' }}>{t('orders.total')}</span>
                   <span className="fw-bold" style={{ color: '#00b289', fontSize: '17px' }}>
                     {total.toFixed(0)} EGP
                   </span>

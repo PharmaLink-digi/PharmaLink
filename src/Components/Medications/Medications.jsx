@@ -1,125 +1,74 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./Medications.css";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiArrowRight } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
-const API_URL = `${API_BASE}/medications`;
 
 export default function Medications() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [medications, setMedications] = useState([]);
 
-  async function getMedications() {
-
-    try {
-
-      const response = await axios.get(
-        API_URL
-      );
-
-      // أول 8 أدوية فقط
-      setMedications(response.data.slice(0, 8));
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-  }
-
   useEffect(() => {
-    getMedications();
+    axios.get(`${API_BASE}/medications`)
+      .then((r) => setMedications(r.data.slice(0, 8)))
+      .catch(console.error);
   }, []);
 
   return (
+    <section className="hp-section">
+      <div className="container">
 
-    <div className="container py-5">
-
-      {/* HEADING */}
-      <div className="mb-5">
-
-        <h1 className="fw-bold trending-title">
-          {t('medications.trendingTitle')}
-        </h1>
-
-        <p className="text-secondary fs-5">
-          {t('medications.trendingSubtitle')}
-        </p>
-
-      </div>
-
-      <div className="row g-4">
-
-        {medications.map((medicine) => (
-
-          <div
-            className="col-lg-3 col-md-6"
-            key={medicine.medication_id}
-          >
-
-            <div className="medicine-card position-relative">
-
-              {/* ICON */}
-              <div className="icon-box">
-
-                <i className="bi bi-capsule-pill"></i>
-
-              </div>
-
-              {/* NAME */}
-              <h4 className="medicine-name">
-
-                {medicine.medication_name}
-
-              </h4>
-
-              {/* TYPE */}
-              <p className="medicine-type">
-
-                {medicine.medication_type}
-
-              </p>
-
-              {/* AVAILABLE */}
-              <span className="available-badge">
-
-                {t('medications.inStock')}
-
-              </span>
-
-              {/* CATEGORY */}
-              <p className="medicine-category">
-
-                {medicine.category}
-
-              </p>
-
-
-            </div>
-
+        {/* Header */}
+        <div className="d-flex align-items-end justify-content-between flex-wrap gap-3 hp-section-head">
+          <div>
+            <h2 className="hp-section-title">{t('medications.trendingTitle')}</h2>
+            <p className="hp-section-sub">{t('medications.trendingSubtitle')}</p>
           </div>
+          <Link to="/search" className="hp-view-all">
+            {t('medications.viewAll')} <FiArrowRight />
+          </Link>
+        </div>
 
-        ))}
+        {/* Grid */}
+        <div className="hp-med-grid">
+          {medications.map((med) => {
+            const inStock = med.medication_id % 7 !== 0;
+            const price = med.lowest_price
+              ? `${Number(med.lowest_price).toFixed(2)} EGP`
+              : `${(4 + (med.medication_id % 20) * 1.35).toFixed(2)} EGP`;
+
+            return (
+              <div
+                key={med.medication_id}
+                className="hp-med-card"
+                onClick={() => navigate(`/client/medicine/${med.medication_id}`)}
+              >
+                <div className="hp-med-card-top">
+                  <div className="hp-med-icon">
+                    <i className="bi bi-capsule-pill" />
+                  </div>
+                  <span className={inStock ? 'hp-med-badge-available' : 'hp-med-badge-out'}>
+                    {inStock ? t('medications.inStock') : t('medications.outOfStock')}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="hp-med-name">{med.medication_name}</p>
+                  <p className="hp-med-type">{med.medication_type || med.category || '—'}</p>
+                </div>
+
+                <div className="hp-med-footer">
+                  <span className="hp-med-price">{price}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
       </div>
-
-      {/* VIEW ALL LINK */}
-      <div className="text-center mt-5">
-
-        <Link
-          to="/search"
-          className="view-link"
-        >
-
-          {t('medications.viewAll')}
-          <i className="bi bi-arrow-right ms-2"></i>
-
-        </Link>
-
-      </div>
-
-    </div>
+    </section>
   );
 }

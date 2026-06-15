@@ -1,10 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import ConfirmOrder from './ConfirmOrder';
 import { useCart } from '../../context/CartContext';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 export default function ConfirmOrderPage() {
   const { cartItems, orderDetails, setOrderDetails, clearCart } = useCart();
@@ -13,21 +11,26 @@ export default function ConfirmOrderPage() {
   const handlePlaceOrder = async (formData) => {
     const userId = localStorage.getItem('userId');
 
-    // 1. Create order
-    const orderRes = await axios.post(`${API_BASE}/orders`, {
-      client_id: userId,
+    // orders table: {order_id, client_id, pharm_id, order_date, status}
+    // pharm_id comes from the first cart item (all items assumed same pharmacy)
+    const pharmId = cartItems[0]?.pharm_id ?? null;
+
+    const orderRes = await api.post('/orders', {
+      client_id: Number(userId),
+      pharm_id: pharmId,
       order_date: new Date().toISOString().split('T')[0],
       status: 'pending',
-      notes: formData.notes || '',
     });
-    const newOrder = orderRes.data;
+    const newOrder = Array.isArray(orderRes.data) ? orderRes.data[0] : orderRes.data;
+    const orderId = newOrder?.order_id;
+    if (!orderId) throw new Error('Order creation failed — no order_id returned');
 
-    // 2. Create order details for each cart item
+    // order-details: restore all fields the DB expects
     await Promise.all(
       cartItems.map((item) =>
-        axios.post(`${API_BASE}/order-details`, {
-          order_id: newOrder.order_id,
-          client_id: userId,
+        api.post('/order-details', {
+          order_id: orderId,
+          client_id: Number(userId),
           pharm_id: item.pharm_id,
           inventory_id: item.inventory_id,
           medication_id: item.medication_id,
@@ -38,19 +41,6 @@ export default function ConfirmOrderPage() {
       )
     );
 
-    // 3. If Paymob, get payment iframe URL
-    if (formData.paymentMethod === 'paymob') {
-      const payRes = await axios.post(`${API_BASE}/payment/paymob`, {
-        amount: formData.total,
-        merchant_order_id: newOrder.order_id,
-        billing: {
-          phone: formData.phone,
-          address: formData.address,
-        },
-      });
-      return { paymobIframeUrl: payRes.data.iframe_url };
-    }
-
     return { success: true };
   };
 
@@ -59,10 +49,10 @@ export default function ConfirmOrderPage() {
       cartItems={cartItems}
       orderDetails={orderDetails}
       setOrderDetails={setOrderDetails}
-      onNavigateBack={() => navigate('/cart')}
+      onNavigateBack={() => navigate('/client/cart')}
       onOrderPlaced={() => {
         clearCart();
-        navigate('/my-orders');
+        navigate('/client/dashboard');
       }}
       onPlaceOrder={handlePlaceOrder}
     />

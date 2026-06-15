@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../../utils/api";
 import { Capsule, GeoAlt, GeoAltFill, StarFill, Search } from "react-bootstrap-icons";
 import { useCart } from "../../context/CartContext";
 
@@ -22,16 +22,16 @@ const MedicineDetails = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      navigate("/signin", { state: { from: `/medicine-details/${id}` }, replace: true });
+      navigate("/signin", { state: { from: `/client/medicine/${id}` }, replace: true });
     }
   }, []);
 
   useEffect(() => {
     // Fetch both inventory and pharmacy info in parallel, plus medications to get the name if we only have ID
     Promise.all([
-      axios.get("https://pharmalink-back-end.onrender.com/pharm-inventory"),
-      axios.get("https://pharmalink-back-end.onrender.com/pharm-info"),
-      axios.get("https://pharmalink-back-end.onrender.com/medications")
+      api.get("/pharm-inventory"),
+      api.get("/pharm-info"),
+      api.get("/medications"),
     ])
       .then(([inventoryRes, pharmRes, medsRes]) => {
         setAllInventory(inventoryRes.data);
@@ -144,7 +144,7 @@ const MedicineDetails = () => {
               borderRadius: "12px",
               cursor: "pointer",
             }}
-            onClick={() => navigate('/cart')}
+            onClick={() => navigate('/client/cart')}
           >
             <span className="d-flex text-primary">🛒</span>
             {cartCount > 0 && (

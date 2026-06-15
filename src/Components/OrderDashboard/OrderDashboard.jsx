@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import './OrderDashboard.css';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 export default function OrderDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,8 +27,8 @@ export default function OrderDashboard() {
       setInventory([]);
       setSelectedMedication(null);
 
-      const url = `${API_BASE}/medications/search?query=${encodeURIComponent(searchTerm)}`;
-      const response = await axios.get(url);
+      const url = `/medications/search?query=${encodeURIComponent(searchTerm)}`;
+      const response = await api.get(url);
       
       const results = response.data.results || [];
       setMedicines(results);
@@ -56,9 +54,7 @@ export default function OrderDashboard() {
     setInventory([]);
 
     // Get inventory
-    const inventoryRes = await axios.get(
-      `${API_BASE}/warehouse-inventory`
-    );
+    const inventoryRes = await api.get('/warehouse-inventory');
 
     const inventoryData = Array.isArray(inventoryRes.data)
       ? inventoryRes.data
@@ -72,9 +68,7 @@ export default function OrderDashboard() {
     );
 
     // Get warehouses
-    const warehouseRes = await axios.get(
-      `${API_BASE}/warehouses`
-    );
+    const warehouseRes = await api.get('/warehouses');
 
     const warehouses = Array.isArray(warehouseRes.data)
       ? warehouseRes.data
@@ -109,12 +103,6 @@ export default function OrderDashboard() {
         (a, b) =>
           a.price_per_unit - b.price_per_unit
       );
-
-    console.log("Selected Medication:", med);
-    console.log("Inventory:", inventoryData);
-    console.log("Filtered Inventory:", filteredInventory);
-    console.log("Warehouses:", warehouses);
-    console.log("Joined:", joinedData);
 
     setInventory(joinedData);
 
@@ -153,12 +141,12 @@ export default function OrderDashboard() {
   };
 
   const submitOrder = async () => {
-    if (orderQuantity < 10 || orderQuantity > 50) {
-      setError('Quantity must be between 10 and 50');
+    if (orderQuantity < 1) {
+      setError('Quantity must be at least 1');
       return;
     }
     if (orderQuantity > selectedInventory.quantity) {
-      setError('Quantity exceeds available stock');
+      setError(`Only ${selectedInventory.quantity} units available in stock`);
       return;
     }
 
@@ -176,10 +164,10 @@ export default function OrderDashboard() {
         status: 'pending'
       };
       
-      const orderRes = await axios.post(`${API_BASE}/orders`, orderPayload);
-      const newOrder = orderRes.data[0]; // Assuming supabase insert returns array
-      
-      if (!newOrder || !newOrder.order_id) throw new Error('Order creation failed');
+      const orderRes = await api.post('/orders', orderPayload);
+      const newOrder = Array.isArray(orderRes.data) ? orderRes.data[0] : orderRes.data;
+
+      if (!newOrder?.order_id) throw new Error('Order creation failed');
 
       // 2. Create order details
       const detailPayload = {
@@ -192,7 +180,7 @@ export default function OrderDashboard() {
         line_total: orderQuantity * selectedInventory.price_per_unit
       };
       
-      await axios.post(`${API_BASE}/order-details`, detailPayload);
+      await api.post('/order-details', detailPayload);
       
       setOrderSuccess(`Order #${newOrder.order_id} placed successfully!`);
       
@@ -380,12 +368,12 @@ export default function OrderDashboard() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label fw-bold">Order Quantity (10 - 50)</label>
-                  <input 
-                    type="number" 
-                    className="form-control form-control-lg" 
-                    min="10" 
-                    max="50"
+                  <label className="form-label fw-bold">Order Quantity (max: {selectedInventory.quantity})</label>
+                  <input
+                    type="number"
+                    className="form-control form-control-lg"
+                    min="1"
+                    max={selectedInventory.quantity}
                     value={orderQuantity}
                     onChange={(e) => setOrderQuantity(Number(e.target.value))}
                   />
