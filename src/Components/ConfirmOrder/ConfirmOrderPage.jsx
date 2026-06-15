@@ -25,18 +25,19 @@ export default function ConfirmOrderPage() {
     const orderId = newOrder?.order_id;
     if (!orderId) throw new Error('Order creation failed — no order_id returned');
 
-    // order-details: restore all fields the DB expects
+    // order-details: send all fields including medication_name to avoid nulls
     await Promise.all(
       cartItems.map((item) =>
         api.post('/order-details', {
-          order_id: orderId,
-          client_id: Number(userId),
-          pharm_id: item.pharm_id,
-          inventory_id: item.inventory_id,
-          medication_id: item.medication_id,
-          quantity: item.quantity,
-          unit_price: item.price_sell,
-          line_total: item.price_sell * item.quantity,
+          order_id:        orderId,
+          client_id:       Number(userId),
+          pharm_id:        item.pharm_id,
+          inventory_id:    item.inventory_id,
+          medication_id:   item.medication_id,
+          medication_name: item.medication_name || null,
+          quantity:        item.quantity,
+          unit_price:      item.price_sell,
+          line_total:      item.price_sell * item.quantity,
         })
       )
     );

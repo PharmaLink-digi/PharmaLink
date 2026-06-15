@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
-  SpeedometerFill,
+  Speedometer2,
   BoxSeam,
   ArrowLeftRight,
   Building,
   ClipboardCheck,
+  BarChartFill,
   GearFill,
   BoxArrowRight,
   List,
@@ -15,11 +16,12 @@ import { useAuth } from "../../context/AuthContext";
 import "./PharmacyLayout.css";
 
 const NAV_ITEMS = [
-  { to: "/pharmacy/dashboard",       icon: <SpeedometerFill size={18} />, label: "Dashboard"        },
+  { to: "/pharmacy/dashboard",       icon: <Speedometer2 size={18} />,    label: "Dashboard"        },
   { to: "/pharmacy/inventory",       icon: <BoxSeam size={18} />,         label: "My Inventory"     },
   { to: "/pharmacy/exchange",        icon: <ArrowLeftRight size={18} />,  label: "Exchange Requests" },
   { to: "/pharmacy/warehouse-orders",icon: <Building size={18} />,        label: "Warehouse Orders"  },
   { to: "/pharmacy/order-tracking",  icon: <ClipboardCheck size={18} />,  label: "Order Tracking"   },
+  { to: "/pharmacy/sales",           icon: <BarChartFill size={18} />,    label: "Sales"            },
   { to: "/pharmacy/profile",         icon: <GearFill size={18} />,        label: "Settings"         },
 ];
 

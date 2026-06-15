@@ -31,6 +31,7 @@ import PharmacyDashboard from "./Components/PharmacyDashboard/PharmacyDashboard"
 import PharmacyInventory from "./Components/PharmacyInventory/PharmacyInventory";
 import ExchangeRequest from "./Components/ExchangeRequest/ExchangeRequest";
 import WarehouseOrderTracking from "./Components/WarehouseOrderTracking/WarehouseOrderTracking";
+import PharmacySales from "./Components/PharmacySales/PharmacySales";
 import WarehouseDashboard from "./Components/WarehouseDashboard/WarehouseDashboard";
 import WarehouseInventory from "./Components/WarehouseInventory/WarehouseInventory";
 
@@ -142,6 +143,7 @@ const router = createBrowserRouter([
           { path: "exchange",         element: <ExchangeRequest /> },
           { path: "warehouse-orders", element: <OrderDashboard /> },
           { path: "order-tracking",   element: <WarehouseOrderTracking /> },
+          { path: "sales",            element: <PharmacySales /> },
           { path: "profile",          element: <Settings /> },
         ],
       },

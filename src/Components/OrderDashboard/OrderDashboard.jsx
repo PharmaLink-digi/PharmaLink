@@ -171,13 +171,14 @@ export default function OrderDashboard() {
 
       // 2. Create order details
       const detailPayload = {
-        order_id: newOrder.order_id,
-        pharm_id: pharmId,
-        warehouse_id: selectedInventory.warehouse_id,
-        medication_id: selectedMedication.medication_id,
-        quantity: orderQuantity,
-        unit_price: selectedInventory.price_per_unit,
-        line_total: orderQuantity * selectedInventory.price_per_unit
+        order_id:        newOrder.order_id,
+        pharm_id:        pharmId,
+        warehouse_id:    selectedInventory.warehouse_id,
+        medication_id:   selectedMedication.medication_id,
+        medication_name: selectedMedication.medication_name || null,
+        quantity:        orderQuantity,
+        unit_price:      selectedInventory.price_per_unit,
+        line_total:      orderQuantity * selectedInventory.price_per_unit,
       };
       
       await api.post('/order-details', detailPayload);
