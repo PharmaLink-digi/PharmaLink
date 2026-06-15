@@ -1,0 +1,153 @@
+.order-dashboard-bg {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+  min-height: calc(100vh - 74px);
+  padding: 2rem 0;
+}
+
+.dashboard-header {
+  color: #1e293b;
+  font-weight: 800;
+}
+
+.search-input-wrapper {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border-radius: 20px;
+}
+
+.search-input-wrapper input {
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.search-field-icon {
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  font-size: 1.2rem;
+}
+
+.btn-primary-gradient {
+  background: linear-gradient(90deg, #0d6efd 0%, #10c8a0 100%);
+  border: none;
+  color: white;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.btn-accent {
+  background: #00b4d8;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  background: #0096c7;
+  color: white;
+}
+
+.inventory-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  transition: transform 0.3s ease;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+}
+
+.inventory-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.inventory-card.best-price {
+  border: 2px solid #10c8a0;
+  background: #f8fffc;
+}
+
+.best-price-badge {
+  background: #10c8a0;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.warehouse-code {
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+.area-text {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.price-text {
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.currency-text {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.quantity-text {
+  color: #475569;
+  font-weight: 500;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-available {
+  background: #eef4ff;
+  color: #0d6efd;
+}
+
+.status-low {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-out {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}

@@ -1,0 +1,79 @@
+:root {
+  --sidebar-w: 240px;
+  --sidebar-bg: #0d1b2a;
+  --sidebar-hover: rgba(255,255,255,0.08);
+  --sidebar-active-bg: #0d6efd;
+  --sidebar-text: rgba(255,255,255,0.75);
+  --topbar-h: 52px;
+}
+
+.pharmacy-layout {
+  min-height: calc(100vh - 74px);
+  background: #f4f6fb;
+}
+
+/* ── Sidebar ───────────────────────────────────────────── */
+.pharmacy-sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  position: sticky;
+  top: 74px; /* navbar height */
+  height: calc(100vh - 74px);
+  overflow-y: auto;
+  flex-shrink: 0;
+  z-index: 200;
+  transition: transform 0.25s ease;
+}
+
+.sidebar-brand { border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+.sidebar-link {
+  color: var(--sidebar-text);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 0;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.sidebar-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+.sidebar-link.active {
+  background: var(--sidebar-active-bg);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── Main ──────────────────────────────────────────────── */
+.pharmacy-main { min-width: 0; }
+
+.pharmacy-topbar {
+  background: #fff;
+  border-bottom: 1px solid #e9ecef;
+  height: var(--topbar-h);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.pharmacy-content { padding: 0; }
+
+/* ── Mobile ────────────────────────────────────────────── */
+@media (max-width: 991px) {
+  .pharmacy-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+  .pharmacy-sidebar.sidebar-open { transform: translateX(0); }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 199;
+  }
+}

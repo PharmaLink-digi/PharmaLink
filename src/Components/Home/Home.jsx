@@ -1,34 +1,20 @@
 import "./Home.css";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  FaHeart,
-  FaCapsules,
-  FaHeartbeat,
-  FaWind,
-  FaSun,
-  FaStethoscope,
-  FaFire,
-  FaCircle,
-  FaSearch,
-  FaArrowLeft,
-} from "react-icons/fa";
 import Hero from "./Hero/Hero";
 import Category from "./Category/Category";
 import Medications from "../Medications/Medications";
 import Testimonials from "./Testimonials/Testimonials";
 import JoinNow from "./JoinNow/JoinNow";
-
-
+import WhyUs from "./WhyUs/WhyUs";
 
 export default function Home() {
-
   return (
-    <>
-      <Hero /> 
-      <Medications/>
+    <div className="home-page">
+      <Hero />
+      <Medications />
       <Category />
-      <Testimonials/>
-      <JoinNow/>
-    </>
+      <WhyUs />
+      <Testimonials />
+      <JoinNow />
+    </div>
   );
 }

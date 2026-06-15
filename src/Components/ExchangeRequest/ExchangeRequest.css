@@ -1,0 +1,83 @@
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.filter-buttons button {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  background: #f1f5f9;
+  transition: 0.3s;
+}
+
+.filter-buttons button:hover {
+  background: #e2e8f0;
+}
+
+.request-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 30px;
+  margin-bottom: 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.request-info h2 {
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.request-info p {
+  margin: 8px 0;
+  color: #64748b;
+}
+
+.request-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.approve-btn,
+.reject-btn {
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.approve-btn {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.reject-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.approved-status {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.rejected-status {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+}

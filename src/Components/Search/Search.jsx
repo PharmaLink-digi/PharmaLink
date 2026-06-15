@@ -23,6 +23,7 @@ export default function Search() {
   const { t } = useTranslation();
   const [medicines, setMedicines] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,28 +48,90 @@ export default function Search() {
     setCurrentPage(1);
   }, [searchTerm, selectedTypes]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-          throw new Error(`خطأ في جلب البيانات: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
-        }
-        const transformed = data.map(mapMedication);
-        setMedicines(transformed);
-      } catch (fetchError) {
-        setError(fetchError.message || 'حدث خطأ أثناء جلب البيانات');
-      } finally {
-        setLoading(false);
-      }
-    }
+  const fetchMedicines = async (query = '') => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    fetchData();
+      const url = query 
+        ? `${API_BASE}/medications/search?query=${encodeURIComponent(query)}` 
+        : `${API_BASE}/medications`;
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        if (response.status === 404 && query) {
+          setMedicines([]);
+          return;
+        }
+        throw new Error(`خطأ في جلب البيانات: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      let medsArray = [];
+      
+      if (query && data.results) {
+        medsArray = data.results;
+      } else if (Array.isArray(data)) {
+        medsArray = data;
+      } else {
+        throw new Error('تنسيق الاستجابة غير صحيح من الخادم');
+      }
+      
+      const transformed = medsArray.map(mapMedication);
+      setMedicines(transformed);
+    } catch (fetchError) {
+      setError(fetchError.message || 'حدث خطأ أثناء جلب البيانات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedicines('');
   }, []);
+
+  const handleSearch = () => {
+    fetchMedicines(searchTerm.trim());
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = document.documentElement.lang === 'ar' ? 'ar-EG' : 'en-US';
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchTerm(transcript);
+      fetchMedicines(transcript.trim());
+    };
+    
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    
+    recognition.start();
+  };
 
   const allTypes = useMemo(
     () => Array.from(new Set(medicines.map((item) => item.type))),
@@ -76,14 +139,9 @@ export default function Search() {
   );
 
   const filteredMedicines = medicines.filter((medicine) => {
-    const term = searchTerm.toLowerCase().trim();
-    const matchesSearch =
-      medicine.name.toLowerCase().includes(term) ||
-      medicine.active.toLowerCase().includes(term) ||
-      medicine.type.toLowerCase().includes(term);
     const matchesType =
       selectedTypes.length === 0 || selectedTypes.includes(medicine.type);
-    return matchesSearch && matchesType;
+    return matchesType;
   });
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -131,16 +189,25 @@ export default function Search() {
             <div className="position-relative search-input-wrapper">
               <input
                 type="text"
-                className="form-control search-field py-3 pe-4 ps-5"
-                placeholder={t('search.placeholder')}
+                className="form-control search-field py-3 pe-5 ps-5"
+                placeholder={t('search.placeholder') || "Search for medication..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <i className="bi bi-search search-field-icon position-absolute"></i>
+              <i className="bi bi-search search-field-icon position-absolute" style={{ right: '1rem', top: '50%', transform: 'translateY(-50%)' }}></i>
+              <button 
+                className={`btn position-absolute border-0 ${isListening ? 'voice-pulse text-danger' : 'text-secondary'}`} 
+                style={{ left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}
+                onClick={startVoiceSearch}
+                title="Voice Search"
+              >
+                <i className={`bi ${isListening ? 'bi-mic-fill' : 'bi-mic'} fs-5`}></i>
+              </button>
             </div>
           </div>
           <div className="col-6 col-md-2 col-lg-2">
-            <button type="button" className="btn btn-search w-100 py-3 fw-medium">
+            <button type="button" className="btn btn-search w-100 py-3 fw-medium" onClick={handleSearch}>
               {t('search.searchBtn')}
             </button>
           </div>
@@ -228,35 +295,14 @@ export default function Search() {
                           <h5 className="fw-bold text-dark medicine-main-title mb-1">{med.name}</h5>
                           <p className="text-muted active-sub-title mb-2">{med.active}</p>
                           <span className="badge type-chip mb-3">{med.type}</span>
-                          <div className="d-flex align-items-center gap-1 rating-stars">
-                            {Array.from({ length: 5 }).map((_, idx) => {
-                              const isFilled = idx < Math.round(med.rating);
-                              return (
-                                <i
-                                  key={idx}
-                                  className={`bi ${isFilled ? 'bi-star-fill star-filled' : 'bi-star star-empty'}`}
-                                ></i>
-                              );
-                            })}
-                            <span className="rating-score text-muted ms-2">{med.rating}</span>
-                          </div>
                         </div>
 
                         <div className="d-flex justify-content-between align-items-center mt-auto pt-3">
-                          <div className="price-tag fw-bold text-dark fs-5">
-                            {med.price !== null && med.price !== undefined ? (
-                              <>
-                                <span className="price-currency fs-6 fw-normal text-secondary me-1">{t('search.currency')}</span>
-                                {Number(med.price).toFixed(2)}
-                              </>
-                            ) : (
-                              <span className="text-muted fs-6">Not Available</span>
-                            )}
-                          </div>
-                          <a href={`#details-${med.id}`} className="text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium">
+                          <div></div>
+                          <button onClick={() => navigate(`/client/medicine/${med.id}`)} className="btn btn-link text-decoration-none action-details-link d-flex align-items-center gap-2 fw-medium p-0 border-0">
                             {t('search.details')}
                             <i className="bi bi-chevron-left arrow-icon"></i>
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>

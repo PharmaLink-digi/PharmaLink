@@ -1,0 +1,31 @@
+.upload-zone {
+  position: relative;
+  transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload-zone:hover {
+  background-color: #f8f9fa !important;
+  border-color: var(--color-primary) !important;
+}
+
+.max-h-300 {
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
