@@ -73,7 +73,7 @@ const SignInForm = () => {
   // ── Pharmacy login — GET /pharm-info?pharm_name=eq.{name} ────────────────
   const loginAsPharmacy = async () => {
     const { data } = await api.get(
-      `/pharm-info?pharm_name=eq.${encodeURIComponent(identifier.trim())}`
+      `/pharm-info?pharm_name=${encodeURIComponent(identifier.trim())}`
     );
     const record = Array.isArray(data) ? data[0] : data;
     if (!record) throw new Error("Pharmacy not found. Check the name and try again.");
@@ -89,7 +89,7 @@ const SignInForm = () => {
   // ── Warehouse login — GET /warehouses?warehouse_code=eq.{code} ───────────
   const loginAsWarehouse = async () => {
     const { data } = await api.get(
-      `/warehouses?warehouse_code=eq.${encodeURIComponent(identifier.trim())}`
+      `/warehouses?warehouse_code=${encodeURIComponent(identifier.trim())}`
     );
     const record = Array.isArray(data) ? data[0] : data;
     if (!record) throw new Error("Warehouse not found. Check the code and try again.");
