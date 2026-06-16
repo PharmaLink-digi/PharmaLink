@@ -72,7 +72,7 @@ export default function PharmacyInventory() {
 
   const formatPrice = (value) => {
     if (value == null || Number.isNaN(Number(value))) return "—";
-    return `${Number(value).toFixed(2)} EGP`;
+    return `${Math.max(0, Number(value)).toFixed(2)} EGP`;
   };
 
   const formatExpiry = (value) => {
@@ -182,7 +182,7 @@ export default function PharmacyInventory() {
                             <td className="fw-medium">{item.medication_name}</td>
                             <td>
                               <span className={item.quantity <= 0 ? "text-danger fw-bold" : item.quantity < 30 ? "text-warning fw-bold" : ""}>
-                                {item.quantity}
+                                {Math.max(0, item.quantity)}
                               </span>
                             </td>
                             <td>{formatPrice(item.price_sell)}</td>

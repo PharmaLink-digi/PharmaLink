@@ -68,7 +68,7 @@ export default function WarehouseInventory() {
 
   const formatPrice = (value) => {
     if (value == null || Number.isNaN(Number(value))) return "—";
-    return `${Number(value).toFixed(2)} EGP`;
+    return `${Math.max(0, Number(value)).toFixed(2)} EGP`;
   };
 
   const lowCount = inventory.filter((i) => getStatus(i.quantity) === "Low Stock").length;
@@ -166,7 +166,7 @@ export default function WarehouseInventory() {
                             <td>{formatPrice(item.price_per_unit)}</td>
                             <td>
                               <span className={item.quantity <= 0 ? "text-danger fw-bold" : item.quantity < 50 ? "text-warning fw-bold" : ""}>
-                                {item.quantity}
+                                {Math.max(0, item.quantity)}
                               </span>
                             </td>
                             <td>

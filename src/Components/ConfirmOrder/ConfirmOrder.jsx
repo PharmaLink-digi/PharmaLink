@@ -9,7 +9,7 @@ const ConfirmOrder = ({ cartItems, orderDetails, setOrderDetails, onNavigateBack
   const [paymobIframeUrl, setPaymobIframeUrl] = useState(null);
 
   const formatPrice = (price) => {
-    return `${price.toFixed(0)} EGP`;
+    return `${Math.max(0, price).toFixed(0)} EGP`;
   };
 
   // Calculations

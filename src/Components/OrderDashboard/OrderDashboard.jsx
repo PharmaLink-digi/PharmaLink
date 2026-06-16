@@ -121,15 +121,15 @@ export default function OrderDashboard() {
     setLoadingInventory(false);
   }
 };
-  const getStatusInfo = (qty) => {
-    if (qty <= 0) return { text: 'Out of Stock', class: 'status-out' };
-    if (qty < 50) return { text: 'Low Stock', class: 'status-low' };
-    return { text: 'Available', class: 'status-available' };
-  };
+
+  // Returns a deterministic max qty in [20, 60] per warehouse
+  const getWarehouseMaxQty = (warehouseId) =>
+    20 + (Number(warehouseId) * 7 % 41);
 
   const openOrderModal = (inv) => {
+    const maxQty = getWarehouseMaxQty(inv.warehouse_id);
     setSelectedInventory(inv);
-    setOrderQuantity(10);
+    setOrderQuantity(Math.min(10, maxQty));
     setOrderSuccess(null);
     setError(null);
     setShowModal(true);
@@ -141,12 +141,13 @@ export default function OrderDashboard() {
   };
 
   const submitOrder = async () => {
+    const maxQty = getWarehouseMaxQty(selectedInventory.warehouse_id);
     if (orderQuantity < 1) {
       setError('Quantity must be at least 1');
       return;
     }
-    if (orderQuantity > selectedInventory.quantity) {
-      setError(`Only ${selectedInventory.quantity} units available in stock`);
+    if (orderQuantity > maxQty) {
+      setError(`Maximum order quantity for this warehouse is ${maxQty} units`);
       return;
     }
 
@@ -271,26 +272,22 @@ export default function OrderDashboard() {
           <div>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h4 className="fw-bold text-dark">
-                Available Stock for <span className="text-primary">{selectedMedication.medication_name}</span>
+                Available Warehouses for <span className="text-primary">{selectedMedication.medication_name}</span>
               </h4>
             </div>
             
             <div className="row g-4">
               {inventory.map((inv, idx) => {
                 const isBestPrice = idx === 0;
-                const status = getStatusInfo(inv.quantity);
-                
+
                 return (
                   <div key={inv.w_inventory_id} className="col-12 col-md-6 col-lg-4">
                     <div className={`card inventory-card p-4 h-100 ${isBestPrice ? 'best-price' : ''}`}>
-                      <div className="d-flex justify-content-between align-items-start mb-3">
-                        {isBestPrice ? (
-                           <span className="best-price-badge"><i className="bi bi-star-fill me-1"></i> Best Price</span>
-                        ) : (
-                           <span></span>
-                        )}
-                        <span className={`status-badge ${status.class}`}>{status.text}</span>
-                      </div>
+                      {isBestPrice && (
+                        <div className="mb-3">
+                          <span className="best-price-badge"><i className="bi bi-star-fill me-1"></i> Best Price</span>
+                        </div>
+                      )}
                       
                       <div className="mb-4">
                         <h5 className="warehouse-code mb-1">
@@ -305,9 +302,6 @@ export default function OrderDashboard() {
                       
                       <div className="d-flex justify-content-between align-items-end mt-auto">
                         <div>
-                          <div className="quantity-text mb-1">
-                            Stock: {inv.quantity} units
-                          </div>
                           <div className="price-text">
                              <span className="currency-text">$</span>
                              {Number(inv.price_per_unit).toFixed(2)}
@@ -362,22 +356,33 @@ export default function OrderDashboard() {
                     <span className="text-muted">Unit Price:</span>
                     <span className="fw-bold">${selectedInventory.price_per_unit}</span>
                   </div>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Available Stock:</span>
-                    <span className="fw-bold text-primary">{selectedInventory.quantity}</span>
-                  </div>
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label fw-bold">Order Quantity (max: {selectedInventory.quantity})</label>
-                  <input
-                    type="number"
-                    className="form-control form-control-lg"
-                    min="1"
-                    max={selectedInventory.quantity}
-                    value={orderQuantity}
-                    onChange={(e) => setOrderQuantity(Number(e.target.value))}
-                  />
+                  {(() => {
+                    const maxQty = getWarehouseMaxQty(selectedInventory.warehouse_id);
+                    return (
+                      <>
+                        <label className="form-label fw-bold">
+                          Order Quantity
+                          <span className="text-muted fw-normal ms-2" style={{ fontSize: '13px' }}>
+                            (1 – {maxQty} units)
+                          </span>
+                        </label>
+                        <input
+                          type="number"
+                          className="form-control form-control-lg"
+                          min="1"
+                          max={maxQty}
+                          value={orderQuantity}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setOrderQuantity(Math.min(Math.max(1, val), maxQty));
+                          }}
+                        />
+                      </>
+                    );
+                  })()}
                 </div>
                 
                 <div className="d-flex justify-content-between align-items-center mb-4">
